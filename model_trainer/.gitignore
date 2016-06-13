@@ -1,0 +1,9 @@
+/logs/
+/bk/
+/lib/gen-py
+test/
+
+*.swp
+*.pyc
+*.log
+*.idea

@@ -6,8 +6,8 @@ __author__ = 'chutong'
 
 
 class TsModelLoader(object):
-    ''' Base Model Loader 
-    '''  
+	''' Base Model Loader 
+	'''  
 	def __init__(self):
 		pass
 
@@ -20,6 +20,6 @@ class TsModelLoader(object):
 	def dump_model(self, data, filename, logger, time_store=False):
 		pass
 
-	def dump_model_infos(self, model_infos, model_filename_dict, logger, time_store=False):
+	def dump_model_infos(self, model_infos, model_info_filename_prefix, splited_key, logger, time_store=False):
 		pass
 

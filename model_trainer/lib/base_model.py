@@ -30,7 +30,6 @@ class TsModel(object):
 		self.do_search_parameter = conf.getboolean('simple_model', 'do_search_parameter')
 		self.do_validate = conf.getboolean('simple_model', 'do_validate')
 		self.do_test = conf.getboolean('simple_model', 'do_test')
-		self.store_model = conf.getboolean('simple_model', 'store_model')
 
 		self.search_parameter_loss = conf.get('search_parameter', 'search_parameter_loss')
 		self.search_parameter_best_score_num = conf.getint('search_parameter', 'search_parameter_best_score_num')
@@ -79,6 +78,11 @@ class TsModel(object):
 		'''
 		return {'all': data}
 
+	def _transfer_data_to_model(self, splited_key, splited_data, combine_data, external_data, logger):
+		''' encode input x/y for model training
+		'''
+		return ((), (), {})
+
 	def _get_grid_search_model(self, splited_key, logger):
 		pass
 
@@ -91,18 +95,20 @@ class TsModel(object):
 		try:
 			clf = self._get_grid_search_model(splited_key, logger)
 			param_grid = self._get_param_grid(splited_key, logger)
-			grid_search = GridSearchCV(clf, scoring=self.search_parameter_loss, param_grid=param_grid)
-			grid_search.fit(train_x, train_y)
-			self._report(grid_search.grid_scores_, self.search_parameter_best_score_num, logger)
+			if clf and param_grid:
+				grid_search = GridSearchCV(clf, scoring=self.search_parameter_loss, param_grid=param_grid)
+				grid_search.fit(train_x, train_y)
+				self._report(grid_search.grid_scores_, self.search_parameter_best_score_num, logger)
+			else:
+				logger.error('splited_key[%s] model or parameter grid not defined for search parameter' % splited_key)
 		except Exception as e:
 			logger.exception(e)
 
-	def _store_trained_model(self, clf, model_infos, splited_key, logger):
+	def _get_model(self, splited_key, logger):
+		pass
+
+	def _store_trained_model(self, clf, model_infos, splited_key, logger, scores=None):
 		try:
-			model_dict[splited_key] = {
-				'clf': clf,
-				'model_infos': model_infos
-			}
 
 			# dump model
 			self.model_loader.dump_model(clf, '.'.join([self.model_filename, splited_key]), logger)
@@ -117,6 +123,8 @@ class TsModel(object):
 		scores = cross_validation.cross_val_score(clf, train_x, train_y, pre_dispatch=1, scoring=self.validate_loss)
 		print 'accrucy mean %0.2f +/- %0.2f' % (scores.mean(), scores.std()*2)
 		logger.info('splited_key[%s] accrucy mean %0.2f +/- %0.2f' % (splited_key, scores.mean(), scores.std()*2))
+		logger.info('splited_key[%s] clf %s' % (splited_key, str(clf)))
+		return scores
 
 	def _get_model_names(self, logger):
 		return []
@@ -166,17 +174,27 @@ class TsModel(object):
 					self._do_search_parameter(train_x, train_y, splited_key, logger)
 				else:
 					logger.info('splited_key[%s] do train' % splited_key)
-					clf = self._get_model(animal, logger)
+					clf = self._get_model(splited_key, logger)
+					if not clf:
+						logger.error('splited_key[%s] model not defined' % splited_key)
+						continue
 					clf.fit(train_x, train_y, eval_metric=self.train_loss)
-					# store model info
-					self._store_trained_model(clf, model_infos, splited_key, logger)
 
 					# do validtaion
+					scores = None
 					if self.do_validate:
-						self._do_validation(clf, train_x, train_y, logger)
+						scores = self._do_validation(clf, train_x, train_y, logger)
+
+					# store model info
+					model_dict = self._store_trained_model(clf, model_infos, splited_key, logger, scores)
+					model_dict[splited_key] = {
+						'clf': clf,
+						'model_infos': model_infos
+					}
 		else:
 			logger.info('load trained model...')
 			for splited_key, splited_data in splited_data_dict.iteritems():
+				logger.info('splited_key[%s] load trained model' % splited_key)
 				# load model info
 				(clf, model_infos) = self._load_trained_model(splited_key, logger)
 
@@ -186,5 +204,6 @@ class TsModel(object):
 				}
 
 		if self.do_test:
+			logger.info('load test model...')
 			encoded_y = self._transfer_test_to_model(cleaned_test_data, model_dict, combine_data, external_data, logger)
 			self._ouput_result(encoded_y, self.submission_filename, logger)
