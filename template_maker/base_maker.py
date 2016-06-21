@@ -105,7 +105,7 @@ if __name__ == '__main__':
 		else:
 			conf = ConfigParser.RawConfigParser()
 			conf.read(args.confpath)
-			templates = args.templates.split(',')
+			templates = [ x.strip() for x in args.templates.split(',') ]
 			bm = BaseMaker(templates)
 			bm.init(conf, logger, script_name, basepath)
 			bm.make(logger)

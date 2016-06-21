@@ -1,11 +1,8 @@
 #-*- coding: utf-8 -*-
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
 
-__author__ = 'chutong@domob.cn'
-
+__author__ = 'linpingta@163.com'
 import os, sys
-basepath = os.path.abspath(os.path.dirname(sys.path[0]))
-sys.path.append(os.path.join(basepath, 'lib'))
 import time
 try:
 	import ConfigParser
@@ -13,8 +10,11 @@ except:
 	import configparser as ConfigParser
 import logging
 
+basepath = os.path.abspath(os.path.dirname(sys.path[0]))
+sys.path.append(os.path.join(basepath, 'lib'))
+
 from sender.email_sender import EmailSender
-from task.fb_account_check_monitor import FbAccountCheckMonitor
+from task.new_check_monitor import NewCheckMonitor
 
 
 if __name__ == '__main__':
@@ -24,14 +24,15 @@ if __name__ == '__main__':
     conf = ConfigParser.RawConfigParser()
     conf.read(confpath)
 
-    logging.basicConfig(filename=os.path.join(basepath, 'logs/fb_account_check.log'), level=logging.DEBUG,
+    logging.basicConfig(filename=os.path.join(basepath, 'logs/new_check.log'), level=logging.DEBUG,
         format = '[%(filename)s:%(lineno)s - %(funcName)s %(asctime)s;%(levelname)s] %(message)s',
         datefmt = '%a, %d %b %Y %H:%M:%S'
         )
-    logger = logging.getLogger('FbAccountCheck')
+    logger = logging.getLogger('NewCheck')
 
-    email_sender = EmailSender(conf, 'fb_account_check')
-    mt = FbAccountCheckMonitor(sender=email_sender)
+
+    email_sender = EmailSender(conf, 'new_check')
+    mt = NewCheckMonitor(sender=email_sender)
     mt.init(conf, logger)
     try:
     	now = time.localtime()

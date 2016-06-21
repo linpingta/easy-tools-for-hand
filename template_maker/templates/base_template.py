@@ -2,20 +2,15 @@
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
 
 __author__ = '{{author}}@{{mailbox}}'
-
 import os, sys
-basepath = os.path.abspath(os.path.dirname(sys.path[0]))
-sys.path.append(os.path.join(basepath, 'lib'))
 import time
 try:
 	import ConfigParser
 except:
 	import configparser as ConfigParser
 import logging
-
-from sender.email_sender import EmailSender
-from task.{{ lib_model_name }} import {{ lib_model_capital_name }}
-
+{% block ext_import %}
+{% endblock ext_import %}
 
 if __name__ == '__main__':
 
@@ -30,13 +25,5 @@ if __name__ == '__main__':
         )
     logger = logging.getLogger('{{model_capital_name}}')
 
-    email_sender = EmailSender(conf, '{{model_name}}')
-    mt = {{ lib_model_capital_name }}(sender=email_sender)
-    mt.init(conf, logger)
-    try:
-    	now = time.localtime()
-        mt.run(now, logger)
-    except Exception as e:
-        logger.exception(e)
-    finally:
-        mt.release(logger)
+{% block main %}
+{% endblock main %}
