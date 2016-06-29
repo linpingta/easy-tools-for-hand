@@ -2,6 +2,7 @@
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
 
 import sys, os
+import codecs
 try:
 	import ConfigParser
 except:
@@ -44,7 +45,7 @@ class BaseMaker(object):
 					output_filename = os.path.join(self.output_path, '.'.join([params['model_name'], 'py']))
 				else:
 					output_filename = os.path.join(self.output_path, '.'.join([template, 'py']))
-				with open(output_filename, 'wb') as fp_w:
+				with codecs.open(output_filename, 'w', encoding='utf-8') as fp_w:
 					fp_w.write(output_info)
 					
 				logger.info('template %s ends to make' % template)
