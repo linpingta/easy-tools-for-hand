@@ -81,7 +81,7 @@ class TsModel(object):
 	def _transfer_data_to_model(self, splited_key, splited_data, combine_data, external_data, logger):
 		''' encode input x/y for model training
 		'''
-		return ((), (), {})
+		return (None, None, {})
 
 	def _get_grid_search_model(self, splited_key, logger):
 		pass
