@@ -8,7 +8,7 @@ __author__ = 'chutong'
 class TsModelLoader(object):
 	''' Base Model Loader 
 	'''  
-	def __init__(self):
+	def __init__(self, model_conf):
 		pass
 
 	def load_model(self, filename, logger):
@@ -23,3 +23,5 @@ class TsModelLoader(object):
 	def dump_model_infos(self, model_infos, model_info_filename_prefix, splited_key, logger, time_store=False):
 		pass
 
+	def get_model(self, splited_key, logger):
+		pass

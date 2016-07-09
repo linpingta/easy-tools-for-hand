@@ -4,8 +4,10 @@
 ''' base model'''
 __author__ = 'chutong'
 
+import os, sys
 import time, datetime
 import re
+import xgboost as xgb
 
 import pandas as pd
 import numpy as np
@@ -40,12 +42,6 @@ class TsModel(object):
 		from operator import itemgetter
 		top_scores = sorted(grid_scores, key=itemgetter(1), reverse=True)[:n_top]
 		for i, score in enumerate(top_scores):
-			print("Model with rank: {0}".format(i + 1))
-			print("Mean validation score: {0:.3f} (std: {1:.3f})".format(
-				score.mean_validation_score,
-				np.std(score.cv_validation_scores)))
-			print("Parameters: {0}".format(score.parameters))
-			print("")
 			logger.debug("model with rank: {0}".format(i + 1))
 			logger.debug("mean validation score: {0:.3f} (std: {1:.3f})".format(
 				score.mean_validation_score,
@@ -65,8 +61,10 @@ class TsModel(object):
 				data = self.external_loader.load(filename, logger)
 				cleaned_data = self._clean_data(data, logger)
 
+				return cleaned_data
 		except Exception as e:
 			logger.exception(e)
+			
 
 	def _generate_combine_and_external_data(self, cleaned_train_data, cleaned_test_data, logger):
 		''' sometimes, train and test data need to be combined to generate combined or external data
@@ -105,10 +103,15 @@ class TsModel(object):
 			logger.exception(e)
 
 	def _get_model(self, splited_key, logger):
-		pass
+		return self.model_loader.get_model(splited_key, logger)
 
 	def _store_trained_model(self, clf, model_infos, splited_key, logger, scores=None):
+		model_splited_dict = {}
 		try:
+			model_splited_dict = {
+				'clf': clf,
+				'model_infos': model_infos
+			}
 
 			# dump model
 			self.model_loader.dump_model(clf, '.'.join([self.model_filename, splited_key]), logger)
@@ -118,8 +121,10 @@ class TsModel(object):
 
 		except Exception as e:
 			logger.exception(e)
+		finally:
+			return model_splited_dict
 
-	def _do_validation(self, clf, train_x, train_y, logger):
+	def _do_validation(self, clf, train_x, train_y, splited_key, logger):
 		scores = cross_validation.cross_val_score(clf, train_x, train_y, pre_dispatch=1, scoring=self.validate_loss)
 		print 'accrucy mean %0.2f +/- %0.2f' % (scores.mean(), scores.std()*2)
 		logger.info('splited_key[%s] accrucy mean %0.2f +/- %0.2f' % (splited_key, scores.mean(), scores.std()*2))
@@ -129,21 +134,22 @@ class TsModel(object):
 	def _get_model_names(self, logger):
 		return []
 
-	def _load_trained_model(splited_key, logger):
+	def _load_trained_model(self, splited_key, logger):
 		clf = self.model_loader.load_model('.'.join([self.model_filename, splited_key]), logger)
 		model_names = self._get_model_names(logger)
-		model_infos = self.load_model_infos(model_names, self.model_info_filename_prefix, splited_key, logger)
+		model_infos = self.model_loader.load_model_infos(model_names, self.model_info_filename_prefix, splited_key, logger)
 		return (clf, model_infos)
 
 	def _transfer_test_to_model(self, cleaned_test_data, model_dict, combine_data, external_data, logger):
 		pass
 
-	def _transfer_encode_y_to_result(self, encoded_y, logger):
-		pass
+	def _train(self, clf, train_x, train_y, splited_key, logger):
+		logger.info('splited_key[%s] do training' % splited_key)
+		clf.fit(train_x, train_y)
+		return clf
 
-	def _ouput_result(self, encoded_y, filename, logger):
-		result_y = self._transfer_encode_y_to_result(encoded_y, logger)
-		self.external_loader.dump(result_y, filename, logger)
+	def _output_result(self, predict_y, submission_filename, logger):
+		pass
 
 	def set_model_loader(self, model_loader, logger):
 		self.model_loader = model_loader
@@ -156,6 +162,8 @@ class TsModel(object):
 		# load and clean data
 		cleaned_train_data = self._load_and_clean_data(self.train_filename, logger)
 		cleaned_test_data = self._load_and_clean_data(self.test_filename, logger)
+		logger.debug('train_data shape %s' % str(cleaned_train_data.shape))
+		logger.debug('test_data shape %s' % str(cleaned_test_data.shape))
 
 		# check combine/external data
 		(combine_data, external_data) = self._generate_combine_and_external_data(cleaned_train_data, cleaned_test_data, logger)
@@ -168,6 +176,9 @@ class TsModel(object):
 			for splited_key, splited_data in splited_data_dict.iteritems():
 				logger.info('splited_key[%s] transfer origin data' % splited_key)
 				(train_x, train_y, model_infos) = self._transfer_data_to_model(splited_key, splited_data, combine_data, external_data, logger)
+				logger.debug('train_x.shape %s' % str(train_x.shape))
+				logger.debug('train_y.shape %s' % str(train_y.shape))
+
 				if self.do_search_parameter:
 					# GridSearch related work
 					logger.info('splited_key[%s] do search parameter' % splited_key)
@@ -178,19 +189,18 @@ class TsModel(object):
 					if not clf:
 						logger.error('splited_key[%s] model not defined' % splited_key)
 						continue
-					clf.fit(train_x, train_y, eval_metric=self.train_loss)
+
+					logger.info('splited_key[%s] fit data' % splited_key)
+					clf = self._train(clf, train_x, train_y, splited_key, logger)
 
 					# do validtaion
-					scores = None
+					scores = 0
 					if self.do_validate:
-						scores = self._do_validation(clf, train_x, train_y, logger)
+						scores = self._do_validation(clf, train_x, train_y, splited_key, logger)
 
 					# store model info
-					model_dict = self._store_trained_model(clf, model_infos, splited_key, logger, scores)
-					model_dict[splited_key] = {
-						'clf': clf,
-						'model_infos': model_infos
-					}
+					model_splited_dict = self._store_trained_model(clf, model_infos, splited_key, logger, scores)
+					model_dict[splited_key] = model_splited_dict
 		else:
 			logger.info('load trained model...')
 			for splited_key, splited_data in splited_data_dict.iteritems():
@@ -205,5 +215,16 @@ class TsModel(object):
 
 		if self.do_test:
 			logger.info('load test model...')
-			encoded_y = self._transfer_test_to_model(cleaned_test_data, model_dict, combine_data, external_data, logger)
-			self._ouput_result(encoded_y, self.submission_filename, logger)
+			splited_data_dict = self._split_data(cleaned_test_data, logger)
+			for splited_key, splited_data in splited_data_dict.iteritems():
+				clf = model_dict[splited_key]['clf']
+				model_infos = model_dict[splited_key]['model_infos']
+				splited_test_x = self._transfer_test_to_model(splited_key, splited_data, model_infos, combine_data, external_data, logger)
+				print type(splited_test_x)
+
+				# do prediction
+				predict_y = clf.predict(splited_test_x)
+				logger.info('splited_key[%s] predict_y.shape %s' % (splited_key, str(predict_y.shape)))
+				logger.info('splited_key[%s] predict_y %s' % (splited_key, str(predict_y)))
+				self._output_result(predict_y, self.submission_filename, logger)
+

@@ -1,0 +1,20 @@
+ID,Name,DateTime,AnimalType,SexuponOutcome,AgeuponOutcome,Breed,Color
+1,Summer,2015-10-12 12:15:00,Dog,Intact Female,10 months,Labrador Retriever Mix,Red/White
+2,Cheyenne,2014-07-26 17:59:00,Dog,Spayed Female,2 years,German Shepherd/Siberian Husky,Black/Tan
+3,Gus,2016-01-13 12:20:00,Cat,Neutered Male,1 year,Domestic Shorthair Mix,Brown Tabby
+4,Pongo,2013-12-28 18:12:00,Dog,Intact Male,4 months,Collie Smooth Mix,Tricolor
+5,Skooter,2015-09-24 17:59:00,Dog,Neutered Male,2 years,Miniature Poodle Mix,White
+6,Beau,2015-06-23 11:17:00,Dog,Neutered Male,3 years,Beagle Mix,Brown/White
+7,Bobo,2014-03-12 09:45:00,Cat,Neutered Male,13 years,Domestic Medium Hair Mix,Brown Tabby/White
+8,Abby,2014-06-25 08:27:00,Cat,Spayed Female,6 months,Domestic Shorthair Mix,Brown Tabby
+9,Ruby Grace,2014-11-12 18:05:00,Dog,Spayed Female,3 months,Cairn Terrier,Black/Cream
+10,Ruby,2014-04-07 17:41:00,Dog,Spayed Female,1 year,Pit Bull Mix,Brown/White
+11,Marlee,2014-01-01 17:03:00,Dog,Spayed Female,5 months,Labrador Retriever Mix,White/Black
+12,Lala,2014-09-19 15:40:00,Dog,Intact Female,2 years,Pit Bull Mix,Blue/White
+13,Chloe,2015-01-25 15:13:00,Dog,Spayed Female,6 months,Pit Bull Mix,Brown Brindle
+14,,2015-09-22 18:17:00,Dog,Neutered Male,2 years,Miniature Poodle Mix,White
+15,Duffy,2014-07-20 19:24:00,Dog,Neutered Male,1 year,Flat Coat Retriever/German Shepherd,Black/Brown
+16,Jiggy,2014-03-26 18:33:00,Dog,Spayed Female,4 months,Pointer/Labrador Retriever,White
+17,Ghengis,2015-05-29 17:04:00,Dog,Neutered Male,5 years,Doberman Pinsch Mix,Black/Tan
+18,Decker,2016-01-19 19:31:00,Dog,Neutered Male,3 years,English Bulldog,White/Tricolor
+19,Freckles,2014-06-16 12:49:00,Cat,Spayed Female,3 years,Domestic Shorthair Mix,Torbie

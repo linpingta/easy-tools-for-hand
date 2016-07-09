@@ -1,0 +1,20 @@
+AnimalID,Name,DateTime,OutcomeType,OutcomeSubtype,AnimalType,SexuponOutcome,AgeuponOutcome,Breed,Color
+A671945,Hambone,2014-02-12 18:22:00,Return_to_owner,,Dog,Neutered Male,1 year,Shetland Sheepdog Mix,Brown/White
+A656520,Emily,2013-10-13 12:44:00,Euthanasia,Suffering,Cat,Spayed Female,1 year,Domestic Shorthair Mix,Cream Tabby
+A686464,Pearce,2015-01-31 12:28:00,Adoption,Foster,Dog,Neutered Male,2 years,Pit Bull Mix,Blue/White
+A683430,,2014-07-11 19:09:00,Transfer,Partner,Cat,Intact Male,3 weeks,Domestic Shorthair Mix,Blue Cream
+A667013,,2013-11-15 12:52:00,Transfer,Partner,Dog,Neutered Male,2 years,Lhasa Apso/Miniature Poodle,Tan
+A677334,Elsa,2014-04-25 13:04:00,Transfer,Partner,Dog,Intact Female,1 month,Cairn Terrier/Chihuahua Shorthair,Black/Tan
+A699218,Jimmy,2015-03-28 13:11:00,Transfer,Partner,Cat,Intact Male,3 weeks,Domestic Shorthair Mix,Blue Tabby
+A701489,,2015-04-30 17:02:00,Transfer,Partner,Cat,Unknown,3 weeks,Domestic Shorthair Mix,Brown Tabby
+A671784,Lucy,2014-02-04 17:17:00,Adoption,,Dog,Spayed Female,5 months,American Pit Bull Terrier Mix,Red/White
+A677747,,2014-05-03 07:48:00,Adoption,Offsite,Dog,Spayed Female,1 year,Cairn Terrier,White
+A668402,,2013-12-05 15:50:00,Transfer,SCRP,Cat,Unknown,2 years,Domestic Shorthair Mix,Black
+A666320,,2013-11-04 14:48:00,Adoption,,Dog,Spayed Female,2 years,Miniature Schnauzer Mix,Silver
+A684601,Rocket,2016-02-03 11:27:00,Adoption,Foster,Dog,Neutered Male,4 years,Pit Bull Mix,Brown
+A704702,Scooter,2015-06-08 16:30:00,Return_to_owner,,Dog,Neutered Male,2 years,Yorkshire Terrier Mix,Black/Red
+A688584,Preston,2015-11-25 15:00:00,Return_to_owner,,Dog,Neutered Male,1 year,Great Pyrenees Mix,White/Cream
+A678825,Oliver,2014-07-12 12:10:00,Adoption,Foster,Cat,Neutered Male,3 months,Domestic Shorthair Mix,Orange Tabby/White
+A678050,,2014-05-03 16:15:00,Transfer,Partner,Cat,Intact Male,3 weeks,Domestic Shorthair Mix,Brown Tabby
+A680028,,2014-06-07 12:54:00,Transfer,Partner,Dog,Intact Female,2 weeks,Pit Bull Mix,Brown/White
+A679010,Chrissy,2014-05-17 11:32:00,Transfer,Partner,Cat,Intact Female,2 years,Angora Mix,White

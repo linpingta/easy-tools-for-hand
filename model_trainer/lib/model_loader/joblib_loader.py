@@ -5,15 +5,18 @@
 __author__ = 'chutong'
 
 
+import os
 import time
 from sklearn.externals import joblib
 
+from base_loader import TsModelLoader 
 
-class TsJoblibModelLoader(object):
+
+class TsJoblibModelLoader(TsModelLoader):
 	''' Joblib Model Loader
 	'''  
-	def __init__(self):
-		pass
+	def __init__(self, model_conf):
+		super(TsJoblibModelLoader, self).__init__(model_conf)
 
 	def load_model(self, filename, logger):
 		return joblib.load(filename)
@@ -27,12 +30,12 @@ class TsJoblibModelLoader(object):
 		return model_infos
 
 	def dump_model(self, data, filename, logger, time_store=False):
-		joiblib.dump(data, filename)
+		joblib.dump(data, filename)
 
 		if time_store:
 			postfix_time = time.strftime('%Y%m%d%H%M', time.localtime())
 			postfix_filename = '.'.join([filename, str(postfix_time)])
-			joiblib.dump(data, postfix_filename)
+			joblib.dump(data, postfix_filename)
 
 	def dump_model_infos(self, model_infos, model_info_filename_prefix, splited_key, logger, time_store=False):
 		for model_name, model_info in model_infos.iteritems():
@@ -42,4 +45,4 @@ class TsJoblibModelLoader(object):
 			if time_store:
 				postfix_time = time.strftime('%Y%m%d%H%M', time.localtime())
 				postfix_filename = '.'.join([model_filename, str(postfix_time)])
-				joiblib.dump(model_info, postfix_filename)
+				joblib.dump(model_info, postfix_filename)
