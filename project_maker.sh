@@ -20,8 +20,8 @@ while getopts ":p:f:hm:t:" opt; do
 	MODEL_NAME=$OPTARG
 	;;
 	t)
-	echo "PROJECT_TYPE: $OPTARG"
-	PROJECT_TYPE=$OPTARG
+	echo "FILE_TYPE: $OPTARG"
+	FILE_TYPE=$OPTARG
 	;;
 	h)
 	usage
@@ -53,10 +53,10 @@ BIN_DIR=$PROJECT_PATH/bin
 LIB_DIR=$PROJECT_PATH/lib
 CONF_DIR=$PROJECT_PATH/conf
 LOGS_DIR=$PROJECT_PATH/logs
-if [ -n "$PROJECT_TYPE" ]; then
-    BIN_FILE_NAME="$FILE_NAME.$PROJECT_TYPE"
+if [ -n "$FILE_TYPE" ]; then
+    BIN_FILE_NAME="$FILE_NAME.$FILE_TYPE"
 else
-    BIN_FILE_NAME="$FILE_NAME"
+    BIN_FILE_NAME="$FILE_NAME.py"
 fi
 touch $BIN_DIR/$BIN_FILE_NAME
 touch $CONF_DIR/$FILE_NAME.conf
