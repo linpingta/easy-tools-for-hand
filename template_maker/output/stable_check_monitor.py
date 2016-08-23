@@ -2,8 +2,8 @@
 #!/usr/bin/env python
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
 
-''' {{ model_capital_name }} Task'''
-__author__ = '{{ author }}@163.com'
+''' StableCheckMonitor Task'''
+__author__ = 'linpingta@domob.cn'
 
 
 import os, sys
@@ -15,22 +15,22 @@ except:
 import simplejson as json
 
 
-class {{ model_capital_name }}(MonitorTask):
-    ''' {{ model_capital_name }} Monitor Task'''
+class StableCheckMonitor(MonitorTask):
+    ''' StableCheckMonitor Monitor Task'''
     def __init__(self, sender, object_level, frequency, valid, name):
-        super({{ model_capital_name }}, self).__init__(sender, object_level, frequency, valid, name)
+        super(StableCheckMonitor, self).__init__(sender, object_level, frequency, valid, name)
 
     def _load(self, conf, logger):
         try:
-        	self.{{ model_name }}_filename = conf.get('status_monitor', '{{ model_name }}_filename')
-            with open(self.{{ model_name }}_filename, 'r') as fp_r:
+        	self.stable_check_monitor_filename = conf.get('status_monitor', 'stable_check_monitor_filename')
+            with open(self.stable_check_monitor_filename, 'r') as fp_r:
 				pass
         except Exception as e:
             logger.exception(e)
 
     def _dump(self, logger):
         try:
-            with open(self.{{ model_name }}_filename, 'w') as fp_w:
+            with open(self.stable_check_monitor_filename, 'w') as fp_w:
 				pass
         except Exception as e:
             logger.exception(e)
@@ -47,4 +47,3 @@ class {{ model_capital_name }}(MonitorTask):
             logger.exception(e)
         finally:
             return ad_objects
-
