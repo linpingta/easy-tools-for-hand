@@ -10,7 +10,7 @@ from task.{{ lib_model_name }} import {{ lib_model_capital_name }}
 
 {% block main %}
     email_sender = EmailSender(conf, '{{model_name}}')
-    mt = {{ lib_model_capital_name }}(sender=email_sender)
+    mt = {{ lib_model_capital_name }}(sender=email_sender, 'campaign', 60, 1, '{{ lib_model_capital_name }}')
     mt.init(conf, logger)
     try:
     	now = time.localtime()

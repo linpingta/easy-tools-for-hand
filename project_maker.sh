@@ -48,17 +48,17 @@ PROJECT_PATH=$CUR_DIR/$PROJECT_NAME
 
 echo "Project $PROJECT_PATH Making..."
 
-mkdir -p $PROJECT_PATH/{bin,lib,conf,logs}
-BIN_DIR=$PROJECT_PATH/bin
+mkdir -p $PROJECT_PATH/{lib,conf,logs,data}
+PARENT_DIR=$PROJECT_PATH
 LIB_DIR=$PROJECT_PATH/lib
 CONF_DIR=$PROJECT_PATH/conf
 LOGS_DIR=$PROJECT_PATH/logs
 if [ -n "$FILE_TYPE" ]; then
-    BIN_FILE_NAME="$FILE_NAME.$FILE_TYPE"
+    PARENT_FILE_NAME="$FILE_NAME.$FILE_TYPE"
 else
-    BIN_FILE_NAME="$FILE_NAME.py"
+    PARENT_FILE_NAME="$FILE_NAME.py"
 fi
-touch $BIN_DIR/$BIN_FILE_NAME
+touch $PARENT_DIR/$PARENT_FILE_NAME
 touch $CONF_DIR/$FILE_NAME.conf
 touch $LOGS_DIR/$FILE_NAME.log
 if [ -n "$MODEL_NAME" ]; then

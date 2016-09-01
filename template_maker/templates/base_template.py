@@ -11,7 +11,6 @@ except:
 import logging
 {% block ext_import %}
 {% endblock ext_import %}
-
 {% block body %}
 {% endblock body %}
 
@@ -27,6 +26,5 @@ if __name__ == '__main__':
         datefmt = '%a, %d %b %Y %H:%M:%S'
         )
     logger = logging.getLogger('{{model_capital_name}}')
-
 {% block main %}
 {% endblock main %}
