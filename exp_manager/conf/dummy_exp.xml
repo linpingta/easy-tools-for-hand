@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<exp>
+    <strategy>
+    	<name>Mock</name>
+    	<desc>This is an example of strategy</desc>
+    	<campaigns>1234, 5678</campaigns>
+	<exp_id>101</exp_id>
+    </strategy>
+    <strategy>
+    	<name>Mock2</name>
+    	<desc>This is an example of strategy</desc>
+    	<campaigns>-1</campaigns>
+	<exp_id>102</exp_id>
+    </strategy>
+    <strategy>
+	<name>TimeWithCPA</name>
+	<desc>time with cpa</desc>
+	<campaign_end_numbers>0,2,4,6,8</campaign_end_numbers>
+	<exp_id>118</exp_id>
+    </strategy>
+    <strategy>
+	<name>AppRecentCPAForAccount</name>
+	<desc>app recent cpa </desc>
+	<accounts>12345</accounts>
+	<exp_id>114</exp_id>
+    </strategy>
+</exp>
