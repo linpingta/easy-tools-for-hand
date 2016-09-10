@@ -12,7 +12,7 @@ from __future__ import unicode_literals
 from django.db import models
 
 class DemoQueryTask(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255, blank=True)
     status = models.IntegerField(blank=True, null=True)
     paused = models.IntegerField(blank=True, null=True)
@@ -22,6 +22,7 @@ class DemoQueryTask(models.Model):
     order = models.CharField(max_length=1024, blank=True)
     tablename = models.CharField(max_length=1024, blank=True)
     limit = models.IntegerField(blank=True, null=True)
+    arguments = models.CharField(max_length=1024, blank=True)
     start_dt = models.IntegerField(blank=True, null=True)
     end_dt = models.IntegerField(blank=True, null=True)
     create_time = models.IntegerField(blank=True, null=True)

@@ -87,6 +87,10 @@ class DataExplorer(object):
 			for running_task in running_tasks:
 				hive_conn = HiveConnector(self.hive_host, self.hive_port, self.hive_db)
 				hive_query_task = HiveQueryTask(running_task, hive_conn, self.result_path)
+				if json.loads(running_task.parent_task_ids):
+					hive_query_task.set_arguemnt(TopAppArgument, logger)
+				else:
+					hive_query_task.set_arguemnt(Argument, logger)
 				try:
 					hive_query_task.init(logger)
 				except Exception as e:
@@ -197,7 +201,7 @@ class DataExplorer(object):
 				finished_task_queue.task_done()
 
 			logger.info('main thread waiting')
-			time.sleep(1)
+			time.sleep(20)
 
 		for thread in threads:
 			task_queue.put(None)

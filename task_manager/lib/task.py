@@ -11,10 +11,39 @@ import datetime
 import pandas as pd
 from collections import OrderedDict
 import simplejson as json
+import re
 
 from hive_conn import HiveConnector
 
 
+class Argument(object):
+	''' Used for argument define
+	'''
+	@classmethod
+	def get(cls, result_path, parent_ids, logger):
+		return []
+
+
+class TopAppArgument(Argument):
+
+	@classmethod
+	def get(cls, result_path, parent_ids, logger):
+		try:
+			parent_id = parent_ids[0]
+			df = pd.read_csv(os.path.join(result_path, 'result_%d.csv' % parent_id))
+			print df['application_id']
+			application_ids = df['application_id'].tolist()
+			application_id_str = ''
+			for idx, application_id in enumerate(application_ids):
+				application_id_str += str(application_id)
+				if idx < len(application_ids) - 1:
+					application_id_str += ','
+			print application_id_str
+			arguments = []
+			arguments.append(application_id_str)
+			return arguments
+		except Exception as e:
+			logger.exception(e)
 class BasicTask(object):
 	def __init__(self, id, parent_ids = [], result_path='', name=''):
 		self.id = id
@@ -25,15 +54,14 @@ class BasicTask(object):
 		self.df = pd.DataFrame() 
 
 	def _dump_df(self, logger):
-		if not self.df.empty:
-			if self.result_path:
-				self.df.to_csv(os.path.join(self.result_path, 'result_%d.csv' % self.id), header=True)
-				self.df.to_csv(os.path.join(self.result_path, 'result_%s.csv' % (self.name)), header=True)
-			else:
-				self.df.to_csv('result_%d.csv' % self.id, header=True)
-				self.df.to_csv('result_%s.csv' % (self.name), header=True)
+		if self.df.empty:
+			logger.warning('task_id[%d]: df is empty, dump an empty one' % self.id)
+		if self.result_path:
+			self.df.to_csv(os.path.join(self.result_path, 'result_%d.csv' % self.id), header=True)
+			self.df.to_csv(os.path.join(self.result_path, 'result_%s.csv' % (self.name)), header=True)
 		else:
-			logger.warning('task_id[%d]: df is empty, no dump' % self.id)
+			self.df.to_csv('result_%d.csv' % self.id, header=True)
+			self.df.to_csv('result_%s.csv' % (self.name), header=True)
 
 	def init(self, logger):
 		pass
@@ -64,8 +92,8 @@ class HiveQueryTask(BasicTask):
 			self.start_dt = 0
 		if not self.end_dt:
 			self.end_dt = int(time.strftime('%Y%m%d', time.localtime()))
+		self.limit = demo_query_task.limit if demo_query_task.limit else 0
 		self.create_time = demo_query_task.create_time
-		self.limit = 0
 		self.tablename = demo_query_task.tablename
 
 		# link to hive instance
@@ -94,9 +122,9 @@ class HiveQueryTask(BasicTask):
 			else:
 				metric_alias.append(metric)
 
-		for orderby_metric in self.orderby:
-			if orderby_metric not in metric_alias:
-				raise Exception('orderby metric %s not defined in metrics %s' % (orderby_metric, str(self.metrics)))
+		#for orderby_metric in self.orderby:
+		#	if orderby_metric not in metric_alias:
+		#		raise Exception('orderby metric %s not defined in metrics %s' % (orderby_metric, str(self.metrics)))
 
 	def _generate_query(self, logger):
 		query_str = ''
@@ -137,13 +165,27 @@ class HiveQueryTask(BasicTask):
 		if self.limit > 0:
 			limit_str = ' limit %d ' % self.limit
 			base_query_str += limit_str
+
+		# replace arguments if necessary
+		if self.arguments:
+			for argument in self.arguments:
+				base_query_str = base_query_str.replace("***", argument)
 		query_str = base_query_str
 		logger.info('task_id[%d] generated query str: %s' % (self.id, query_str))
 		self.query_str = query_str
 
+	def set_arguemnt(self, argument, logger):
+		self.Argument = argument
+
 	def init(self, logger):
 		# init hive
 		self._init_hive(logger)
+
+	def run(self, logger):
+		logger.info('task_id[%d] make query' % self.id)
+
+		# set arguments if needed
+		self.arguments = self.Argument.get(self.result_path, self.parent_ids, logger)
 
 		# do examine on task first, no need to query for illegal input
 		self._check(logger)
@@ -151,8 +193,6 @@ class HiveQueryTask(BasicTask):
 		# generate query
 		self._generate_query(logger)
 
-	def run(self, logger):
-		logger.info('task_id[%d] make query' % self.id)
 		self.cur.execute(self.query_str)
 
 		dimensions = self.dimensions
@@ -184,10 +224,11 @@ class HiveQueryTask(BasicTask):
 class UserDefineTask(BasicTask):
 	''' 用户自定义任务
 	'''
-	def __init__(self, id, parent_ids = [], result_path='', max_db_task_id=0):
+	def __init__(self, id, parent_ids = [], result_path='', max_db_task_id=0, name=''):
 		id = id + (max_db_task_id + 1)* 10
 		super(UserDefineTask, self).__init__(id, parent_ids, result_path)
 
+		self.name = name
 		self.parent_df_dict = {}
 
 	def _run(self, name_df_dict, logger):
@@ -207,7 +248,7 @@ class UserDefineTask(BasicTask):
 			self.parent_df_dict[parent_name] = df
 
 		try:
-			self.worker.do(self.parent_df_dict, logger)
+			self.df = self.worker.do(self.parent_df_dict, logger)
 		except Exception as e:
 			logger.exception(e)
 
@@ -216,5 +257,5 @@ class BasicWorker(object):
 
 	@classmethod
 	def do(cls, name_df_dict, logger):
-		print 'hahahah'
+		logger.info('Basic Worker do')
 		return pd.DataFrame()
