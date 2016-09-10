@@ -19,8 +19,8 @@
 	<exp_id>118</exp_id>
     </strategy>
     <strategy>
-	<name>AppRecentCPAForAccount</name>
-	<desc>app recent cpa </desc>
+	<name>ForAccount</name>
+	<desc>app for account </desc>
 	<accounts>12345</accounts>
 	<exp_id>114</exp_id>
     </strategy>

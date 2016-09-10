@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<custom_setting>
+    <user id="1234">
+        <ABC>
+            <attribute1>123</attribute1>
+            <attribute2>1234</attribute2>
+        </ABC>
+        <ABCD>
+            <attribute1>123</attribute1>
+            <attribute2>1234</attribute2>
+        </ABCD>
+    </user>
+    <user id="12345">
+        <ExpStatus>
+            <target>100</target>
+            <recent>150</recent>
+        </ExpStatus>
+    </user>
+</custom_setting>

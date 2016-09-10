@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
 
+__author__ = 'linpingta@163.com'
+
 import os,sys
-basepath = os.path.abspath(os.path.dirname(sys.path[0]))
 import logging
 import ConfigParser
 try:
