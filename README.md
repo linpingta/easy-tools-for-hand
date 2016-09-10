@@ -7,4 +7,5 @@
 3. template_maker ： 用于模板信息的快速填充，基础基于[Jinja2](http://jinja.pocoo.org/)，主要是在工作中常用的离线模型和数据监控脚本自动生成
 4. model_trainer ：用于machine learning项目的基本框架，我在参加[Kaggle竞赛](https://www.kaggle.com/c/shelter-animal-outcomes)中使用了[它](https://github.com/linpingta/shelter-animal-outcome)
 5. task_manager ： 用于离线任务的调度，基于DAG执行db任务和用户定义任务
+6. exp_manager ：服务中使用的实验嵌入
 
