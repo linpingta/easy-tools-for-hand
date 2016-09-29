@@ -10,4 +10,5 @@
 6. exp_manager ：服务中使用的实验嵌入
 7. custom_mamager  : 服务中的参数配置
 8.  task_monitor： 服务监控
+9. offline_model_manager: 离线模型和读取文件
 
