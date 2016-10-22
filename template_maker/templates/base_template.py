@@ -13,7 +13,6 @@ import logging
 {% endblock ext_import %}
 {% block body %}
 {% endblock body %}
-
 if __name__ == '__main__':
 
     basepath = os.path.abspath(os.path.dirname(sys.path[0]))
