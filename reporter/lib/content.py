@@ -25,12 +25,18 @@ class Content(Leaf):
 		self._metrics = []
 		# set name
 		self._name = name
+		# dataframe for content
+		self._df = None
 
 	def set_data_query(self, data_query):
 		self._data_query = data_query
 
 	def set_renderer(self, renderer):
 		self._renderer = renderer
+
+	@property
+	def name(self):
+		return self._name
 
 	@property
 	def handler(self):
@@ -53,7 +59,7 @@ class Content(Leaf):
 		return self._metrics
 
 	@metrics.setter
-	def metrics(self, dimensions=[]):
+	def metrics(self, metrics=[]):
 		self._metrics = metrics
 
 	@property
@@ -72,6 +78,7 @@ class Content(Leaf):
 		#	return False
 		df_columns = self.df_attributes
 		for attribute in (self._dimensions + self._metrics):
+			print attribute
 			if attribute not in df_columns:
 				logger.error('attribute[%s] not in input dataframe' % attribute)
 				return False
@@ -79,6 +86,10 @@ class Content(Leaf):
 
 	@property
 	def df_attributes(self):
+		if not isinstance(self._df, pd.DataFrame):
+			raise TypeError("df is not DataFrame")
+		elif self._df.empty:
+			raise ValueError("Dataframe is Empty")
 		return self._df.columns.values.tolist()
 
 	def query_df(self, logger):
@@ -88,11 +99,11 @@ class Content(Leaf):
 
 	def render(self, logger):
 		try:
-			if not self._df:
+			if self._df.empty:
 				self._df = self._data_query.query(logger)
 			if not self._check_attribute(logger):
-				raise ValueError("part dimensions %s or metrics %s not defined in dataframe columns %s" % (self._dimensions, self._metrics))
-			self._renderer.run(self._df, self._dimensions, self._metrics, self._handler, logger)
+				raise ValueError("part dimensions %s or metrics %s not defined in dataframe columns %s" % (str(self._dimensions), str(self._metrics), str(self.df_attributes)))
+			return self._renderer.run(self._df, self._dimensions, self._metrics, self._handler, logger)
 		except ValueError as e:
 			logger.exception(e)
 		except Exception as e:

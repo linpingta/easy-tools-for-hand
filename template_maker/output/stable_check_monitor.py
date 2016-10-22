@@ -3,7 +3,7 @@
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
 
 ''' StableCheckMonitor Task'''
-__author__ = 'linpingta@domob.cn'
+__author__ = 'linpingta@163.com'
 
 
 import os, sys

@@ -3,7 +3,7 @@
 # vim: set bg=dark noet sw=4 ts=4 fdm=indent : 
 
 ''' Data Task'''
-__author__='chutong@domob.cn'
+__author__='chutong'
 
 import os,sys
 import time

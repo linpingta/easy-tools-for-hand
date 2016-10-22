@@ -7,6 +7,7 @@ __author__ = "chutong"
 
 
 from abc import ABCMeta, abstractmethod
+import pandas as pd
 
 from models import HiveConn
 from models import TsQueryTask
