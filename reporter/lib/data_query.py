@@ -8,8 +8,8 @@ __author__ = "chutong"
 
 from abc import ABCMeta, abstractmethod
 
-from domob_pyutils.ive2_helper import HiveConn
-from models import ZeusQueryTask
+from models import HiveConn
+from models import TsQueryTask
 from task import HiveQueryTask
 
 
@@ -46,17 +46,17 @@ class HiveTaskQuery(BaseQuery):
 
 	def query(self, logger):
 		try:
-			zeus_task = ZeusQueryTask.objects.get(id=self._task_id)
-			if not zeus_task:
-				logger.error("task_id[%d] not defined in zeus task db, return")
+			ts_task = TsQueryTask.objects.get(id=self._task_id)
+			if not ts_task:
+				logger.error("task_id[%d] not defined in ts task db, return")
 				return
-			hive_query_task = HiveQueryTask(zeus_task, self.hive_conn, self.result_path) 
+			hive_query_task = HiveQueryTask(ts_task, self.hive_conn, self.result_path) 
 			try:
 				hive_query_task.init(logger)
 			except IOError as e:
 				logger.exception(e)
 			else:
-				try;
+				try:
 					hive_query_task.run(logger)
 				except Exception as e:
 					logger.exception(e)

@@ -1,0 +1,15 @@
+/logs/
+*/logs/
+*/conf/
+*/data/
+/bk/
+/lib/gen-py
+test/
+
+fabfile.*
+
+*.swp
+*.pyc
+*.log
+*.idea
+~

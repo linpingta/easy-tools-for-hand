@@ -10,8 +10,8 @@ from abc import ABCMeta, abstractmethod
 
 
 class Component(object):
-    ''' Composite design
-    '''
+	''' Composite design
+	'''
 	__metaclass__ = ABCMeta
 
 	@abstractmethod

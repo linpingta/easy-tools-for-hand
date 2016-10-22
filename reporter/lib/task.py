@@ -3,7 +3,7 @@
 # vim: set bg=dark noet sw=4 ts=4 fdm=indent : 
 
 ''' Data Task'''
-__author__='chutong@domob.cn'
+__author__='chutong'
 
 import os,sys
 import time
@@ -13,8 +13,8 @@ from collections import OrderedDict
 import simplejson as json
 import re
 
-from domob_pyutils.hive2_helper import HiveConn
-from models import ZeusQueryTask
+from models import HiveConn
+from models import TsQueryTask
 
 
 class Argument(object):
@@ -77,27 +77,27 @@ class BasicTask(object):
 
 
 class HiveQueryTask(BasicTask):
-	def __init__(self, zeus_query_task, hiveconn=None, result_path=''):
-		parent_ids = json.loads(zeus_query_task.parent_task_ids) if zeus_query_task.parent_task_ids else []
-		super(HiveQueryTask, self).__init__(zeus_query_task.id, parent_ids, result_path, zeus_query_task.name)
+	def __init__(self, ts_query_task, hiveconn=None, result_path=''):
+		parent_ids = json.loads(ts_query_task.parent_task_ids) if ts_query_task.parent_task_ids else []
+		super(HiveQueryTask, self).__init__(ts_query_task.id, parent_ids, result_path, ts_query_task.name)
 
-		self.status = zeus_query_task.status
-		self.paused = zeus_query_task.paused
-		self.dimensions = json.loads(zeus_query_task.dimension) if zeus_query_task.dimension else []
+		self.status = ts_query_task.status
+		self.paused = ts_query_task.paused
+		self.dimensions = json.loads(ts_query_task.dimension) if ts_query_task.dimension else []
 		if not self.dimensions:
 			self.dimensions = ['1']
-		self.metrics = json.loads(zeus_query_task.metric) if zeus_query_task.metric else []
-		self.filter = json.loads(zeus_query_task.filter) if zeus_query_task.filter else []
-		self.orderby = json.loads(zeus_query_task.order) if zeus_query_task.order else []
-		self.start_dt = zeus_query_task.start_dt
-		self.end_dt = zeus_query_task.end_dt
+		self.metrics = json.loads(ts_query_task.metric) if ts_query_task.metric else []
+		self.filter = json.loads(ts_query_task.filter) if ts_query_task.filter else []
+		self.orderby = json.loads(ts_query_task.order) if ts_query_task.order else []
+		self.start_dt = ts_query_task.start_dt
+		self.end_dt = ts_query_task.end_dt
 		if not self.start_dt:
 			self.start_dt = 0
 		if not self.end_dt:
 			self.end_dt = int(time.strftime('%Y%m%d', time.localtime()))
-		self.limit = zeus_query_task.limit if zeus_query_task.limit else 0
-		self.create_time = zeus_query_task.create_time
-		self.tablename = zeus_query_task.tablename
+		self.limit = ts_query_task.limit if ts_query_task.limit else 0
+		self.create_time = ts_query_task.create_time
+		self.tablename = ts_query_task.tablename
 
 		# link to hive instance
 		self.hive_conn = hiveconn 
@@ -179,7 +179,7 @@ class HiveQueryTask(BasicTask):
 
 	def _update_status(self, logger):
 		try:
-			task = ZeusQueryTask.objects.get(id=self.id)
+			task = TsQueryTask.objects.get(id=self.id)
 			task.paused = 1
 			task.save(update_fields=["paused"])
 		except Exception as e:
