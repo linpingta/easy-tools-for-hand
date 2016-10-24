@@ -78,7 +78,6 @@ class Content(Leaf):
 		#	return False
 		df_columns = self.df_attributes
 		for attribute in (self._dimensions + self._metrics):
-			print attribute
 			if attribute not in df_columns:
 				logger.error('attribute[%s] not in input dataframe' % attribute)
 				return False
@@ -89,7 +88,7 @@ class Content(Leaf):
 		if not isinstance(self._df, pd.DataFrame):
 			raise TypeError("df is not DataFrame")
 		elif self._df.empty:
-			raise ValueError("Dataframe is Empty")
+			raise ValueError("Dataframe is Empty, call query_df first")
 		return self._df.columns.values.tolist()
 
 	def query_df(self, logger):
@@ -103,7 +102,8 @@ class Content(Leaf):
 				self._df = self._data_query.query(logger)
 			if not self._check_attribute(logger):
 				raise ValueError("part dimensions %s or metrics %s not defined in dataframe columns %s" % (str(self._dimensions), str(self._metrics), str(self.df_attributes)))
-			return self._renderer.run(self._df, self._dimensions, self._metrics, self._handler, logger)
+			self._renderer.name = self._name
+			self._renderer.run(self._df, self._dimensions, self._metrics, self._handler, logger)
 		except ValueError as e:
 			logger.exception(e)
 		except Exception as e:
