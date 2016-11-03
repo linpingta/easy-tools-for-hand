@@ -33,18 +33,16 @@ class MonitorMaker(BaseMaker):
 		return generated_dict
 
 
+def split_filename(filename):
+	paths = os.path.split(filename)
+	return os.path.splitext(paths[-1])[0]
+
+
 if __name__ == '__main__':
 
-	basepath = os.path.abspath(sys.path[0])
-
-	script_name = os.path.splitext(os.path.basename(__file__))[0]
-	logging.basicConfig(filename=os.path.join(basepath, 'logs/' + script_name + '.log'), level=logging.DEBUG,
-		format = '[%(filename)s:%(lineno)s - %(funcName)s %(asctime)s;%(levelname)s] %(message)s',
-		datefmt = '%a, %d %b %Y %H:%M:%S'
-		)
-	logger = logging.getLogger('MonitorMaker')
-
 	try:
+		basepath = os.path.abspath(sys.path[0])
+
 		import argparse
 		parser = argparse.ArgumentParser(prog='monitor_maker', description='template maker')
 		parser.add_argument('-t', '--templates', help='template names to make, should be defined as section name in conf, and have related file in templates/', type=str)
@@ -53,12 +51,25 @@ if __name__ == '__main__':
 		if not args.templates:
 			logger.error('no template input from CLI')
 		else:
+
+			script_name = os.path.splitext(os.path.basename(__file__))[0]
+			logging.basicConfig(filename=os.path.join(basepath, 'logs/' + script_name + '.log'), level=logging.DEBUG,
+				format = '[%(filename)s:%(lineno)s - %(funcName)s %(asctime)s;%(levelname)s] %(message)s',
+				datefmt = '%a, %d %b %Y %H:%M:%S'
+				)
+			logger = logging.getLogger('MonitorMaker')
+
 			conf = ConfigParser.RawConfigParser()
 			conf.read(args.confpath)
 			templates = args.templates.split(',')
-			bm = MonitorMaker(templates)
+			new_templates = []
+			[ new_templates.append(split_filename(template)) for template in templates ]
+			print new_templates
+			bm = MonitorMaker(new_templates)
 			bm.init(conf, logger, script_name, basepath)
 			bm.make(logger)
+	except ValueError, e:
+		logging.exception(e)
 	except Exception,e:
 		logging.exception(e)
 
