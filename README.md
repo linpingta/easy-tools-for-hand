@@ -4,9 +4,10 @@
 
 1. project_maker ：快速生成python/scala常用项目的基本目录结构
 
-    ./project_maker_py.sh -p test
+
+       ./project_maker_py.sh -p test
     
-    ./project_maker_scala.sh -p test
+        ./project_maker_scala.sh -p test
     
 2. fabfile.py ：基于[fabric](http://www.fabfile.org/)，保存常用的操作命令，包括git命令和远程目录操作
 
