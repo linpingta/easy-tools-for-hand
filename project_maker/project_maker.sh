@@ -12,8 +12,8 @@ while getopts ":p:f:hm:t:" opt; do
 	PROJECT_NAME=$OPTARG
 	;;
 	f)
-	echo "FILE_NAME: $OPTARG"
-	FILE_NAME=$OPTARG
+	echo "INPUT_FILE_NAME: $OPTARG"
+	INPUT_FILE_NAME=$OPTARG
 	;;
 	m)
 	echo "MODEL_NAME: $OPTARG"
@@ -38,25 +38,26 @@ if [ -z "$PROJECT_NAME" ]; then
     exit 1
 fi
 
-if [ -z "$FILE_NAME" ]; then
-    echo "File Name Empty, Exit"
-    exit 1
-fi
-
 CUR_DIR=`pwd`
 PROJECT_PATH=$CUR_DIR/$PROJECT_NAME
 
 echo "Project $PROJECT_PATH Making..."
 
-mkdir -p $PROJECT_PATH/{lib,conf,logs,data}
+mkdir -p $PROJECT_PATH/{lib,conf,logs,data,test}
 PARENT_DIR=$PROJECT_PATH
 LIB_DIR=$PROJECT_PATH/lib
 CONF_DIR=$PROJECT_PATH/conf
 LOGS_DIR=$PROJECT_PATH/logs
+if [ -n "$FILE_NANE" ]; then
+    FILE_NAME="$INPUT_FILE_NAME"
+else
+    FILE_NAME="$PROJECT_NAME"
+fi
 if [ -n "$FILE_TYPE" ]; then
     PARENT_FILE_NAME="$FILE_NAME.$FILE_TYPE"
 else
     PARENT_FILE_NAME="$FILE_NAME.py"
+    FILE_TYPE="py"
 fi
 touch $PARENT_DIR/$PARENT_FILE_NAME
 touch $CONF_DIR/$FILE_NAME.conf
@@ -65,6 +66,11 @@ if [ -n "$MODEL_NAME" ]; then
     MODEL_PATH=$PROJECT_PATH/lib/$MODEL_NAME
     mkdir -p $MODEL_PATH
     touch $MODEL_PATH/__init__.py 
+fi
+
+if [ "$FILE_TYPE" = "py" ]; then
+    echo $FILE_TYPE
+    echo $CUR_DIR
 fi
 
 echo "Project $PROJECT_PATH Made"
