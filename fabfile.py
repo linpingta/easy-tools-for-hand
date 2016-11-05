@@ -14,7 +14,7 @@ def git_status():
 def git_commit(branch="develop", m="update"):
 	try:
 		local('git add -A')
-		local('git commit -m %s' % m)
+		local('git commit -m "%s"' % m)
 	except:
 		print 'Git add already' 
 	finally:
