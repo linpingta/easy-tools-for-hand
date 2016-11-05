@@ -1,8 +1,15 @@
 #-*- coding: utf-8 -*-
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
 
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree. An additional grant
+# of patent rights can be found in the PATENTS file in the same directory.
+
+
+""" Monitor Call"""
 __author__ = '{{author}}@{{mailbox}}'
-import os, sys
+import os
+import sys
 import time
 try:
 	import ConfigParser
@@ -14,7 +21,6 @@ import logging
 {% block body %}
 {% endblock body %}
 if __name__ == '__main__':
-
     basepath = os.path.abspath(os.path.dirname(sys.path[0]))
     confpath = os.path.join(basepath, 'conf/{{conf_name}}.conf')
     conf = ConfigParser.RawConfigParser()

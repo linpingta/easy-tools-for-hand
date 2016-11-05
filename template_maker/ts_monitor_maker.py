@@ -43,28 +43,38 @@ if __name__ == '__main__':
 	try:
 		basepath = os.path.abspath(sys.path[0])
 
+		script_name = os.path.splitext(os.path.basename(__file__))[0]
+		logging.basicConfig(filename=os.path.join(basepath, 'logs/' + script_name + '.log'), level=logging.DEBUG,
+			format = '[%(filename)s:%(lineno)s - %(funcName)s %(asctime)s;%(levelname)s] %(message)s',
+			datefmt = '%a, %d %b %Y %H:%M:%S'
+			)
+		logger = logging.getLogger('MonitorMaker')
+
+		example_word = """example:
+
+			python ts_monitor_maker.py -t monitor_template1.py,monitor_template2.py
+			python ts_monitor_maker.py -t templates/monitor_template.py -c conf/marker.conf
+			python ts_monitor_maker.py -t templates/monitor_template.py 
+			python ts_monitor_maker.py -t monitor_template.py -c conf/marker.conf
+			python ts_monitor_maker.py -t monitor_template
+		"""
+
 		import argparse
-		parser = argparse.ArgumentParser(prog='monitor_maker', description='template maker')
+		parser = argparse.ArgumentParser(prog='monitor_maker', description='template maker', epilog=example_word, formatter_class=argparse.RawDescriptionHelpFormatter)
 		parser.add_argument('-t', '--templates', help='template names to make, should be defined as section name in conf, and have related file in templates/', type=str)
 		parser.add_argument('-c', '--confpath', help='configuration path for template detail info', type=str, default=os.path.join(basepath, 'conf/maker.conf'))
 		args = parser.parse_args()
 		if not args.templates:
+			parser.print_help()
 			logger.error('no template input from CLI')
+		elif not args.confpath:
+			parser.print_help()
+			raise ValueError("no confpath input from CLI")
 		else:
-
-			script_name = os.path.splitext(os.path.basename(__file__))[0]
-			logging.basicConfig(filename=os.path.join(basepath, 'logs/' + script_name + '.log'), level=logging.DEBUG,
-				format = '[%(filename)s:%(lineno)s - %(funcName)s %(asctime)s;%(levelname)s] %(message)s',
-				datefmt = '%a, %d %b %Y %H:%M:%S'
-				)
-			logger = logging.getLogger('MonitorMaker')
-
 			conf = ConfigParser.RawConfigParser()
 			conf.read(args.confpath)
-			templates = args.templates.split(',')
 			new_templates = []
-			[ new_templates.append(split_filename(template)) for template in templates ]
-			print new_templates
+			[ new_templates.append(split_filename(template.strip())) for template in args.templates.split(',') ]
 			bm = MonitorMaker(new_templates)
 			bm.init(conf, logger, script_name, basepath)
 			bm.make(logger)
