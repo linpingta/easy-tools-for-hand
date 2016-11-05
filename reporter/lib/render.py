@@ -29,8 +29,8 @@ class LinePlotter(BaseRender):
 	""" 
 	Plot line for data
 	"""
-	def __init__(self, name):
-		self._name = name
+	def __init__(self):
+		self._name = None
 
 	@property
 	def name(self):
@@ -42,15 +42,12 @@ class LinePlotter(BaseRender):
 
 	def run(self, dataframe, dimensions, metrics, handler, logger):
 		assert self._name
-		print self._name
-		print type(handler)
 		if len(dimensions) == 1:
 			plt.figure()
 			dataframe.plot(x=dataframe[dimensions[0]], y=metrics)
 			plt.title(self._name)
 			handler.savefig()
 			plt.close()
-			print type(plt)
 		else:
 			raise Exception('dimensions len[%d] and metrics len[%d] illegal' % (len(dimensions), len(metrics)))
 
@@ -60,8 +57,8 @@ class RenderFactory(object):
 	Build render or plotter
 	"""
 	@classmethod
-	def build(cls, type, name=''):
+	def build(cls, type):
 		if type == 'line':
-			return LinePlotter(name)
+			return LinePlotter()
 		else:
 			raise TypeError("type %s not defined for render" % type)

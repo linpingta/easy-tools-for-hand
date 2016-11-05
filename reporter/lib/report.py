@@ -8,6 +8,7 @@ __author__ = 'chutong'
 
 import os
 import sys
+import datetime
 import logging
 try:
 	import configparser as ConfigParser
@@ -46,16 +47,11 @@ class PdfReport(Composite):
 		self._components.append(component)
 
 	def render(self, logger):
-		plt_handlers = []
 		for component in self._components:
+			logger.info('report render content[%s]' % component.name)
 			component.handler = self._handler
-			plt_handler = component.render(logger)
-			if not plt_handler:
-				logger.error("component %s not plot" % component.name)
-			else:
-				plt_handlers.append(plt_handler)
-		return plt_handlers
-				
+			component.render(logger)
+
 
 
 if __name__ == '__main__':
@@ -73,48 +69,38 @@ if __name__ == '__main__':
 	with PdfPages(os.path.join(basepath, "output/test.pdf")) as pdf_handler:
 		reporter.handler = pdf_handler
 
-	print type(pdf_handler)
+		# add content
+		data_filename = "bid1"
+		content1 = Content(conf, data_filename)
+		#query = DataQueryFactory.build('task', 200, conf)
+		query = DataQueryFactory.build('df', os.path.join(basepath, "data/%s.csv" % data_filename))
+		renderer = RenderFactory.build('line')
+		content1.set_data_query(query)
+		content1.set_renderer(renderer)
+		content1.query_df(logger)
+		logger.info('content[%s] has df attributes %s' % (content1.name, str(content1.df_attributes)))
+		content1.dimensions = ['dt']
+		content1.metrics = ['avg_relevance_score']
+		reporter.add_component(content1)
 
-	# add content
-	data_filename = "bid1"
-	content1 = Content(conf, data_filename)
-	query = DataQueryFactory.build('df', os.path.join(basepath, "data/%s.csv" % data_filename))
-	renderer = RenderFactory.build('line', data_filename)
-	content1.set_data_query(query)
-	content1.set_renderer(renderer)
-	content1.query_df(logger)
-	print content1.df_attributes
-	print type(renderer)
-	content1.dimensions = ['dt']
-	content1.metrics = ['avg_relevance_score']
-	reporter.add_component(content1)
+		# add content
+		data_filename = "bid2"
+		content2 = Content(conf, data_filename)
+		query = DataQueryFactory.build('df', os.path.join(basepath, "data/%s.csv" % data_filename))
+		renderer = RenderFactory.build('line')
+		content2.set_data_query(query)
+		content2.set_renderer(renderer)
+		content2.query_df(logger)
+		logger.info('content[%s] has df attributes %s' % (content2.name, str(content2.df_attributes)))
+		content2.dimensions = ['image_url']
+		content2.metrics = ['avg_relevance_score']
+		reporter.add_component(content2)
 
-	## add content
-	#data_filename = "bid2"
-	#content2 = Content(conf, data_filename)
-	#query = DataQueryFactory.build('df', os.path.join(basepath, "data/%s.csv" % data_filename))
-	##query = DataQueryFactory.build('task', 200, conf)
-	#renderer = RenderFactory.build('line')
-	#content2.set_data_query(query)
-	#content2.set_renderer(renderer)
-	#content2.query_df(logger)
-	#print content2.df_attributes
-	#content2.dimenions = []
-	#content2.metrics = []
-	#reporter.add_component(content2)
+		reporter.render(logger)
 
-	reporter.render(logger)
-	#plt_handlers = reporter.render(logger)
-	#for plt_handler in plt_handlers:
-	#	print 'abc'
-	#	print type(plt_handler)
-	#	plt_handler.savefig(pdf_handler, format="pdf")
-	#	plt_handler.close()
-
-	#d = pdf_handler.infodict()
-	#d['Title'] = 'Multipage PDF Example'
-	#d['Author'] = u'Chu Tong'
-	#d['Subject'] = 'How to create a multipage pdf file and set its metadata'
-	#d['Keywords'] = 'PdfPages multipage keywords author title subject'
-	#d['CreationDate'] = datetime.datetime(2009, 11, 13)
-	#d['ModDate'] = datetime.datetime.today()
+		d = pdf_handler.infodict()
+		d['Title'] = conf.get('pdf_info', 'title')
+		d['Author'] = conf.get('pdf_info', 'author')
+		d['Subject'] = conf.get('pdf_info', 'subject')
+		d['Keywords'] = conf.get('pdf_info', 'keywords')
+		d['CreationDate'] = datetime.datetime.now()
