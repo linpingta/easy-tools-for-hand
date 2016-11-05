@@ -11,10 +11,14 @@ def git_status():
 	local('git branch')
 	local('git status')
 
-def git_commit(branch="master", message="update"):
-	local('git add -A')
-	local('git commit -m %s' % message)
-	local('git push origin %s' % branch)
+def git_commit(branch="master", m="update"):
+	try:
+		local('git add -A')
+		local('git commit -m %s' % m)
+	except:
+		print 'Git add already' 
+	finally:
+		local('git push origin %s' % branch)
 
 def scp_from_remote(*files):
 	cur_dir = os.getcwd()
