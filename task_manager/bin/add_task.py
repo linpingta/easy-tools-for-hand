@@ -12,35 +12,53 @@ import simplejson as json
 from models import DemoQueryTask
 
 
-def add_task(name, dimensions, metrics, filters, orderby, start_dt, end_dt):
+def add_task(name, dimensions, metrics, filters, orderby, start_dt, end_dt, limit=-1, input_parent_task_ids=[]):
 
 	# common task setting
 	paused = 0
 	status = 1
 	create_time = int(time.time())
-	parent_task_ids = json.dumps([])
-	tablename = 'demo_table'
+	parent_task_ids = json.dumps(input_parent_task_ids)
+	tablename = 'demo_offline_data'
 
 	dimension = json.dumps(dimensions)
 	metric = json.dumps(metrics)
 	filter = json.dumps(filters)
 	order = json.dumps(orderby)
 
-	task = DemoQueryTask(
-		name=name,
-		paused=paused,
-		status=status,
-		create_time=create_time,
-		start_dt=start_dt,
-		end_dt=end_dt,
-		order=order,
-		filter=filter,
-		metric=metric,
-		dimension=dimension,
-		tablename=tablename,
-		parent_task_ids=parent_task_ids
-	)
+	if limit > 0:
+		task = DemoQueryTask(
+			name=name,
+			paused=paused,
+			status=status,
+			create_time=create_time,
+			start_dt=start_dt,
+			end_dt=end_dt,
+			order=order,
+			filter=filter,
+			metric=metric,
+			limit=limit,
+			dimension=dimension,
+			tablename=tablename,
+			parent_task_ids=parent_task_ids
+		)
+	else:
+		task = DemoQueryTask(
+			name=name,
+			paused=paused,
+			status=status,
+			create_time=create_time,
+			start_dt=start_dt,
+			end_dt=end_dt,
+			order=order,
+			filter=filter,
+			metric=metric,
+			dimension=dimension,
+			tablename=tablename,
+			parent_task_ids=parent_task_ids
+		)
 	task.save()
+	return task.id
 
 
 if __name__ == '__main__':

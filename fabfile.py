@@ -11,7 +11,7 @@ def git_status():
 	local('git branch')
 	local('git status')
 
-def git_commit(branch="master", m="update"):
+def git_commit(branch="develop", m="update"):
 	try:
 		local('git add -A')
 		local('git commit -m %s' % m)
