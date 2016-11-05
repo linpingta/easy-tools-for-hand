@@ -13,6 +13,8 @@ try:
 	import configparser as ConfigParser
 except:
 	import ConfigParser
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 
@@ -101,12 +103,13 @@ if __name__ == '__main__':
 	#content2.metrics = []
 	#reporter.add_component(content2)
 
-	plt_handlers = reporter.render(logger)
-	for plt_handler in plt_handlers:
-		print 'abc'
-		print type(plt_handler)
-		plt_handler.savefig(pdf_handler, format="pdf")
-		plt_handler.close()
+	reporter.render(logger)
+	#plt_handlers = reporter.render(logger)
+	#for plt_handler in plt_handlers:
+	#	print 'abc'
+	#	print type(plt_handler)
+	#	plt_handler.savefig(pdf_handler, format="pdf")
+	#	plt_handler.close()
 
 	#d = pdf_handler.infodict()
 	#d['Title'] = 'Multipage PDF Example'

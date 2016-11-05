@@ -8,9 +8,9 @@ __author__ = "chutong"
 
 from abc import ABCMeta, abstractmethod
 import pandas as pd
-import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 
 class BaseRender(object):
@@ -43,13 +43,14 @@ class LinePlotter(BaseRender):
 	def run(self, dataframe, dimensions, metrics, handler, logger):
 		assert self._name
 		print self._name
+		print type(handler)
 		if len(dimensions) == 1:
 			plt.figure()
 			dataframe.plot(x=dataframe[dimensions[0]], y=metrics)
 			plt.title(self._name)
-			#handler.savefig()
-			#plt.close()
-			return plt
+			handler.savefig()
+			plt.close()
+			print type(plt)
 		else:
 			raise Exception('dimensions len[%d] and metrics len[%d] illegal' % (len(dimensions), len(metrics)))
 
