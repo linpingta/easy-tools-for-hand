@@ -2,6 +2,7 @@
 
 usage(){
 	echo "./project_maker.sh -p [project_name] -f [file_name] -m [model_name] -t [file_extension]"
+	echo "project_name required, file_name(default as project_name)/model_name(default None)/file_extension(default py) optional"
 	exit 1
 }
 
@@ -44,7 +45,6 @@ PROJECT_PATH=$CUR_DIR/$PROJECT_NAME
 echo "Project $PROJECT_PATH Making..."
 
 mkdir -p $PROJECT_PATH/{lib,conf,logs,data,test}
-PARENT_DIR=$PROJECT_PATH
 LIB_DIR=$PROJECT_PATH/lib
 CONF_DIR=$PROJECT_PATH/conf
 LOGS_DIR=$PROJECT_PATH/logs
@@ -59,7 +59,7 @@ else
     PARENT_FILE_NAME="$FILE_NAME.py"
     FILE_TYPE="py"
 fi
-touch $PARENT_DIR/$PARENT_FILE_NAME
+touch $PROJECT_PATH/$PARENT_FILE_NAME
 touch $CONF_DIR/$FILE_NAME.conf
 touch $LOGS_DIR/$FILE_NAME.log
 if [ -n "$MODEL_NAME" ]; then
@@ -68,10 +68,14 @@ if [ -n "$MODEL_NAME" ]; then
     touch $MODEL_PATH/__init__.py 
 fi
 
+TEMPLATE_FILE=main_template.py
 if [ "$FILE_TYPE" = "py" ]; then
-    echo $FILE_TYPE
-    echo $CUR_DIR
+    if [ -f "$TEMPLATE_FILE" ]; then
+	cp -r $TEMPLATE_FILE $PROJECT_PATH/$PARENT_FILE_NAME
+	echo "$TEMPLATE_FILE copy to folder"
+    else
+	echo "$TEMPLATE_FILE not exist"
+    fi
 fi
 
 echo "Project $PROJECT_PATH Made"
-
