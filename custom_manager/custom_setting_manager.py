@@ -6,7 +6,10 @@ __author__ = 'linpingta@163.com'
 import os
 import sys
 import logging
-import ConfigParser
+try:
+	import ConfigParser
+except ImportError:
+	import configparser as ConfigParser
 import xmltodict
 
 
@@ -65,6 +68,15 @@ if __name__ == '__main__':
 	logger = logging.getLogger('CustomSettingManager')
 
 	try:
+		import argparse
+		example_word = """
+
+			CustomSettingManager.load(input_xml_filename, logger)
+			user_setting_dict = CustomSettingManager.get_user_in_custom_setting(user_id, status_name, logger)
+		"""
+		parser = argparse.ArgumentParser(prog="custom setting", description="show how to use custom setting", epilog=example_word, formatter_class=argparse.RawDescriptionHelpFormatter) 
+		parser.parse_args()
+
 		CustomSettingManager.load(filename, logger)
 		print 'Total custom_setting'
 		print CustomSettingManager.custom_setting_dict

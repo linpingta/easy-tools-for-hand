@@ -3,35 +3,29 @@
 
 __author__ = 'linpingta@163.com'
 
-import os,sys
+import os
+import sys
 import logging
-import ConfigParser
 try:
+	import ConfigParser
 	import xml.etree.cElementTree as ET
 except ImportError:
+	import configparser as ConfigParser
 	import xml.etree.ElementTree as ET
 
 
 class ExpManager(object):
-	''' 负责AAM实验策略的加载和管理
-	'''
+	"""
+	 负责AAM实验策略的加载和管理
+	"""
 	exp_campaigns_dict = {}
 	exp_accounts_dict = {}
-	exp_id_dict = {}
 	exp_campaign_end_dict = {}
-
-	def __init__(self):
-		pass
+	exp_id_dict = {}
 
 	@classmethod
 	def get_exp_id(cls, strategy_name, logger):
-		exp_id = 0
-		try:
-			exp_id = cls.exp_id_dict[strategy_name]
-		except Exception, e:
-			logger.exception(e)
-		finally:
-			return exp_id
+		return cls.exp_id_dict[strategy_name] if cls.strategy_exists(strategy_name) else 0
 
 	@classmethod
 	def strategy_exists(cls, strategy_name, logger):
@@ -92,10 +86,10 @@ class ExpManager(object):
 
 	@classmethod
 	def load(cls, filename, logger):
-		''' 加载策略文件'''
+		""" 加载策略文件"""
 		try:
 			tree = ET.ElementTree(file=filename)
-		except Exception, e:
+		except IOError, e:
 			logger.exception(e)
 		else:
 			try:
@@ -104,7 +98,7 @@ class ExpManager(object):
 					name = strategy.find('name').text
 					exp_id = strategy.find('exp_id').text
 					campaign_info = strategy.find('campaigns')
-					if campaign_info is not None:
+					if campaign_info:
 						campaigns = [ int(campaign) for campaign in campaign_info.text.split(',') ]
 						cls.exp_campaigns_dict.setdefault(name, campaigns)
 					account_info = strategy.find('accounts')
@@ -137,6 +131,7 @@ if __name__ == '__main__':
 	logger = logging.getLogger('ExpManager')
 
 	try:
+		filename = '123'
 		ExpManager.load(filename, logger)
 		print ExpManager.campaign_in_strategy('Mock', 1234, logger)
 		print ExpManager.campaign_in_strategy('Mock', 12345, logger)
