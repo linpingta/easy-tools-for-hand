@@ -9,19 +9,19 @@
     <strategy>
     	<name>Mock2</name>
     	<desc>This is an example of strategy</desc>
-    	<campaigns>-1</campaigns>
+	<campaign_end_numbers>0,2,4,6,8</campaign_end_numbers>
 	<exp_id>102</exp_id>
     </strategy>
     <strategy>
-	<name>TimeWithCPA</name>
-	<desc>time with cpa</desc>
-	<campaign_end_numbers>0,2,4,6,8</campaign_end_numbers>
-	<exp_id>118</exp_id>
+	<name>Mock3</name>
+	<desc>This is an example of strategy3</desc>
+	<accounts>123</accounts>
+	<exp_id>103</exp_id>
     </strategy>
     <strategy>
-	<name>ForAccount</name>
-	<desc>app for account </desc>
-	<accounts>12345</accounts>
-	<exp_id>114</exp_id>
+	<name>Mock4</name>
+	<desc>This is an example of strategy4</desc>
+	<users>1</users>
+	<exp_id>104</exp_id>
     </strategy>
 </exp>
