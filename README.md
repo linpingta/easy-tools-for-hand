@@ -38,17 +38,17 @@
 5. task_manager ： 用于离线任务的调度，基于DAG执行db任务和用户定义任务
 6. exp_manager ：实验服务类，支持优雅的实验管理和日志定制
 
-
-	   with ExpManager("Mock") as (exp, logger):
-           from collections import OrderedDict
-           user_info = OrderedDict(user_id=1, account_id=123, campaign_id=1234)
-           if exp and exp.has_user(user_info):
-               # main logic
-               print 'user exists in exp'
-               logger.debug('user_id[%d] account_id[%d] campaign_id[%d] participate exp' % tuple(user_info.values()))
-           else:
-               print 'user not exists in exp'
-               logger.debug('user_id[%d] account_id[%d] campaign_id[%d] dont participate exp' % tuple(user_info.values()))
+	    with ExpManager("Mock") as (exp, logger):
+	   
+           	from collections import OrderedDict
+           	user_info = OrderedDict(user_id=1, account_id=123, campaign_id=1234)
+           	if exp and exp.has_user(user_info):
+               		# main logic
+               		print 'user exists in exp'
+               		logger.debug('user_id[%d] account_id[%d] campaign_id[%d] participate exp' % tuple(user_info.values()))
+		    else:
+               		print 'user not exists in exp'
+               		logger.debug('user_id[%d] account_id[%d] campaign_id[%d] dont participate exp' % tuple(user_info.values()))
 	      
 7. custom_mamager  : 参数定制类, 用于用户特殊处理
 
