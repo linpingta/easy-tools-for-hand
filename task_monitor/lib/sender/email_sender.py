@@ -2,12 +2,14 @@
 #!/usr/bin/env python
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
 
-''' Email Sender'''
+""" Email Sender"""
 __author__ = 'linpingta@163.com'
 
 import smtplib
 from smtplib import SMTPServerDisconnected
 from email.mime.text import MIMEText
+
+from base_sender import BaseSender
 
 header = """<html><head>
 <style>

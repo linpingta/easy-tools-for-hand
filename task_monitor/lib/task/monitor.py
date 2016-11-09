@@ -2,50 +2,113 @@
 #!/usr/bin/env python
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
 
-''' Base Task'''
+"""
+Monitor Related Task
+"""
 __author__ = 'linpingta@163.com'
 
+import os
+import sys
+sys.path.append("..")
 
-import os, sys
 from base import Task
+
+from facebook_interface import FBI
+from ts_interface import TSI
 
 
 class MonitorTask(Task):
-	''' Monitor Task'''
-	def __init__(self, sender=None, object_level='object', frequency=60, valid=1, name='Task'):
-		super(MonitorTask, self).__init__(object_level, frequency, valid, name)
+	""" Monitor Task
+	"""
+	def __init__(self, name, object_level='ad', frequency=60, valid=1):
+		super(MonitorTask, self).__init__(name, object_level, frequency, valid)
 		self.sender = sender
-		self.new_mailto_list = []
+		self.global_sendto_users = []
+		self.special_sendto_users = []
+		self._start_dt, self._end_dt = 0, 0
 
-	def _get_ad_objects(self, now, logger):
-		return []
+	@property
+	def sender(self):
+		return self._sender
 
-	def _get_ad_headinfo(self, logger):
-		return []
+	@sender.setter
+	def sender(self, value):
+		self._sender = value
 
+	def _get_before_dt(self, dt_now, dt_interval=0):
+		""" Used to transfer start/end dt to YYYYMMDD format"""
+		dt_before = dt_now + datetime.timedelta(dt_interval)
+		return int(dt_before.strftime('%Y%m%d'))
+
+	def _run(self, now, logger):
+		pass
+
+	def set_global_sendto_users(self, global_sendto_users):
+		self.global_sendto_users = global_sendto_users
+
+	def add_special_sendto_user(self, special_sendto_user):
+		self.special_sendto_users.append(special_sendto_user)
+	
+	def init(self, conf, logger):
+		# decide time to check
+		try:
+			start_dt = conf.getint(self._name, 'start_dt')
+			end_dt = conf.getint(self._name, 'end_dt')
+		except ValueError:
+			logger.info('task[%s] dont define start/end dt' % self._name)
+		else:
+			try: # judge by formate, only support two, YYYYMMDD or -1 (means 1 day before now)
+				datetime.datetime.strptime(start_dt, '%Y%m%d')
+			except ValueError as e:
+				dt_now = datetime.datetime.now()
+				self._start_dt = self._get_before_dt(dt_now, start_dt)
+				self._end_dt = self._get_before_dt(dt_now, end_dt)
+			else:
+				self._start_dt = start_dt
+				self._end_dt = end_dt
+
+		# set users to send info
+		global_sendto_users = conf.get('common', 'global_sendto_users')
+		[ self.global_sendto_users.append(user.strip()) for user in global_sendto_users.split(',') ]
+		self._FBI = FBI(conf)
+		self._TSI = TSI(conf)
+
+	def release(self, logger):
+		if self._FBI and isinstance(self._FBI, FBI):
+			self._FBI.release(logger)
+		if self._TSI and isinstance(self._TSI, TSI):
+			self._TSI.release(logger)
+		
 	def run(self, now, logger):
-		''' main task'''
+		""" main task"""
 		try:
 			# check task info first
 			if not self.valid:
-				logger.info('task[%s] invalid, return' % self.name)
+				logger.info('task[%s] invalid, return' % self._name)
 				return
 
-			logger.info('task[%s] begins' % self.name)
+			logger.info('task[%s] begins' % self._name)
 
-			# ad_objects as list of list
-			ad_headinfo = self._get_ad_headinfo(logger)
-			ad_objects = self._get_ad_objects(now, logger)
+			self._sender.set_sendto_list([self.global_sendto_users, self.special_sendto_users], logger)
 
-			if (not ad_objects) or (not ad_headinfo) or (len(ad_headinfo) != len(ad_objects[0])):
-				logger.error('task[%s] ad_info_format illegal' % self.name)
-				return
+			self._sender.add_title(u'Monitor Work [%s]:' % self._name, 1)
+			if self._start_dt and self._end_dt:
+				self._sender.add_title(u'时间段 %d-%d' % (self._start_dt, self._end_dt))
 
-			# send info
-			if self.new_mailto_list:
-				self.sender.add_to_mailto_list(self.new_mailto_list, logger)
-			self.sender.send(ad_headinfo, ad_objects, now, logger)
+			result_list = []
 
-			logger.info('task[%s] ends' % self.name)
+			# main work here
+			result_list = self._run(now, logger)
+
+			result_df = pd.DataFrame(result_list)
+			self._sender.add_table(result_df.to_html(index=False, escape=False)
+
+			self._sender.send(now, logger)
+
+			logger.info('task[%s] ends' % self._name)
 		except Exception as e:
 			logger.exception(e)
+
+	def register(self, server, logger):
+		""" register itself to monitor server"""
+		pass

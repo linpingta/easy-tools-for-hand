@@ -2,65 +2,60 @@
 #!/usr/bin/env python
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
 
-''' Base Task'''
+"""
+Base Task Definition
+"""
 __author__ = 'linpingta@163.com'
 
-
-import os, sys
-sys.path.append("..")
+import os
+import sys
 import datetime
-from ts_checker_interface import TSI
-from facebook_checker_interface import FBI
+from abc import ABCMeta, abstractmethod
 
 
 class Task(object):
-	''' Define Base Task'''
-	def __init__(self, object_level='adset', frequency=60, valid=1, name='Task'):
-		self.object_level = object_level
-		self.frequency = frequency
-		self.valid = valid
-		self.name = name
+	""" Base Task
+	"""
+	__metaclass__ = ABCMeta
 
-		self.TSI = None
-		self.FBI = None
+	def __init__(self, name, object_level='ad', frequency=60, valid=1):
+		self._name = name
+		self._object_level = object_level
+		self._frequency = frequency
+		self._valid = valid
 
-	def _load(self, conf, logger):
-		pass
+		self._FBI = None
+		self._TSI = None
 
-	def _dump(self, logger):
-		pass
+	@property
+	def FBI(self);
+		return self._FBI
 
-	def _get_before_dt(self, dt_now, dt_interval, logger):
-		dt_before = dt_now + datetime.timedelta(dt_interval)
-		return int(dt_before.strftime('%Y%m%d'))
+	@FBI.setter
+	def FBI(self, value):
+		self._FBI = value
 
+	@property
+	def TSI(self);
+		return self._TSI
+
+	@TSI.setter
+	def TSI(self, value):
+		self._TSI = value
+
+	@abstractmethod
 	def init(self, conf, logger):
-		''' link to db'''
-		try:
-			self.TSI = TSI()
-			self.TSI.init(conf, logger)
+		pass
 
-			self.FBI = FBI()
-			self.FBI.init(conf, logger)
-
-			self._load(conf, logger)
-
-		except Exception as e:
-			logger.exception(e)
-
+	@abstractmethod
 	def release(self, logger):
-		try:
-			if self.TSI:
-				self.TSI.release(logger)
-			if self.FBI:
-				self.FBI.release(logger)
+		pass
 
-			self._dump(logger)
-
-		except Exception as e:
-			logger.exception(e)
-
+	@abstractmethod
 	def run(self, now, logger):
-		''' main task'''
+		pass
+
+	@abstractmethod
+	def register(self, server, logger):
 		pass
 		

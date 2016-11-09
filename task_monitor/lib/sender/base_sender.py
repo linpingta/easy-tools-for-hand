@@ -2,15 +2,19 @@
 #!/usr/bin/env python
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
 
-''' Base Sender'''
+""" Base Sender"""
 __author__ = 'linpingta@163.com'
+
+from abc import ABCMeta, abstractmethod
 
 
 class BaseSender(object):
-	''' basic sender for monitor result
-	'''
-	def __init__(self, conf, title):
-		pass
+	""" Basic sender for Monitor
+	"""
+	__metaclass__ = ABCMeta
+	def __init__(self, conf, title='BaseSender'):
+		self._title = title
 
-	def send(self, ad_info_objects, now, logger):
+	@abstractmethod
+	def send(self, now, logger):
 		pass
