@@ -54,7 +54,14 @@
 
           CustomSettingManager.load(xml_filename, logger)
           user_setting_dict = CustomSettingManager.get_user_in_custom_setting(user_id,'STATUS', logger)
-8. task_monitor： 服务监控
+	  
+8. task_monitor： 服务监控，继承MonitorTask定制实际的监控
+
+
+	   	./general_start.sh # for monitor run once
+	   	./crontab_start.sh # for monitor run in crontab time
+	 
+	 
 9. offline_model_manager: 离线模型和读取文件
 10. reporter： 报表
 
