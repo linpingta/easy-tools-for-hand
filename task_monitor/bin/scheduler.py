@@ -5,7 +5,6 @@
 """
 Global Scheduler
 """
-__author__ = 'linpingta@163.com'
 
 from __future__ import absolute_import
 from celery import Celery

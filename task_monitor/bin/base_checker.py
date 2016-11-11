@@ -18,12 +18,12 @@ except ImportError as e:
 	import configparser as ConfigParser
 import logging
 
-from task import MonitorTask 
+from task.monitor import MonitorTask 
 from sender.email_sender import EmailSender
-from schduler import app
+#from scheduler import app
 
 
-@app.task
+#@app.task
 def main():
 	basepath = os.path.abspath(os.path.dirname(sys.path[0]))
 	confpath = os.path.join(basepath, 'conf/task.conf')

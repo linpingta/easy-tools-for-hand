@@ -10,6 +10,8 @@ __author__ = 'linpingta@163.com'
 import os
 import sys
 sys.path.append("..")
+import datetime
+import pandas as pd
 
 from base import Task
 
@@ -41,6 +43,7 @@ class MonitorTask(Task):
 		return int(dt_before.strftime('%Y%m%d'))
 
 	def _run(self, now, logger):
+		print "Hello World"
 		return []
 
 	def set_global_sendto_users(self, global_sendto_users):
@@ -58,7 +61,7 @@ class MonitorTask(Task):
 			logger.info('task[%s] dont define start/end dt' % self._name)
 		else:
 			try: # judge by formate, only support two, YYYYMMDD or -1 (means 1 day before now)
-				datetime.datetime.strptime(start_dt, '%Y%m%d')
+				datetime.datetime.strptime(str(start_dt), '%Y%m%d')
 			except ValueError as e:
 				dt_now = datetime.datetime.now()
 				self._start_dt = self._get_before_dt(dt_now, start_dt)
@@ -83,13 +86,13 @@ class MonitorTask(Task):
 		""" main task"""
 		try:
 			# check task info first
-			if not self.valid:
+			if not self._valid:
 				logger.info('task[%s] invalid, return' % self._name)
 				return
 
 			logger.info('task[%s] begins' % self._name)
 
-			self._sender.set_sendto_list([self.global_sendto_users, self.special_sendto_users], logger)
+			self._sender.set_sendto_list([self.global_sendto_users, self.special_sendto_users])
 
 			self._sender.add_title(u'Monitor Work [%s]:' % self._name, 1)
 			if self._start_dt and self._end_dt:
@@ -101,9 +104,9 @@ class MonitorTask(Task):
 			result_list = self._run(now, logger)
 
 			result_df = pd.DataFrame(result_list)
-			self._sender.add_table(result_df.to_html(index=False, escape=False)
+			self._sender.add_table(result_df.to_html(index=False, escape=False))
 
-			self._sender.send(now, logger)
+			self._sender.send(logger)
 
 			logger.info('task[%s] ends' % self._name)
 		except Exception as e:

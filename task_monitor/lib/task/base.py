@@ -28,7 +28,7 @@ class Task(object):
 		self._TSI = None
 
 	@property
-	def FBI(self);
+	def FBI(self):
 		return self._FBI
 
 	@FBI.setter
@@ -36,7 +36,7 @@ class Task(object):
 		self._FBI = value
 
 	@property
-	def TSI(self);
+	def TSI(self):
 		return self._TSI
 
 	@TSI.setter

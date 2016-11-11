@@ -12,9 +12,13 @@ class BaseSender(object):
 	""" Basic sender for Monitor
 	"""
 	__metaclass__ = ABCMeta
-	def __init__(self, conf, title='BaseSender'):
+	def __init__(self, conf, title="BaseSender"):
 		self._title = title
 
+	@property
+	def title(self):
+		return self._title
+
 	@abstractmethod
-	def send(self, now, logger):
+	def send(self, logger):
 		pass
