@@ -57,5 +57,6 @@ class Task(object):
 
 	@abstractmethod
 	def register(self, server, logger):
+		""" register itself to monitor server, future to do"""
 		pass
 		

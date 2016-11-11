@@ -20,9 +20,9 @@ from ts_interface import TSI
 class MonitorTask(Task):
 	""" Monitor Task
 	"""
-	def __init__(self, name, object_level='ad', frequency=60, valid=1):
+	def __init__(self, name, sender=None, object_level='ad', frequency=60, valid=1):
 		super(MonitorTask, self).__init__(name, object_level, frequency, valid)
-		self.sender = sender
+		self._sender = sender
 		self.global_sendto_users = []
 		self.special_sendto_users = []
 		self._start_dt, self._end_dt = 0, 0
@@ -41,7 +41,7 @@ class MonitorTask(Task):
 		return int(dt_before.strftime('%Y%m%d'))
 
 	def _run(self, now, logger):
-		pass
+		return []
 
 	def set_global_sendto_users(self, global_sendto_users):
 		self.global_sendto_users = global_sendto_users
@@ -110,5 +110,5 @@ class MonitorTask(Task):
 			logger.exception(e)
 
 	def register(self, server, logger):
-		""" register itself to monitor server"""
+		""" register itself to monitor server, future to do"""
 		pass

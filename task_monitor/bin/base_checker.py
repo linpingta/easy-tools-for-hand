@@ -2,21 +2,29 @@
 #!/usr/bin/env python
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
 
-''' Base Checker'''
+"""
+Base Checker
+"""
 __author__ = 'linpingta@163.com'
 
-import os, sys
+import os
+import sys
 basepath = os.path.abspath(os.path.dirname(sys.path[0]))
 sys.path.append(os.path.join(basepath, 'lib'))
 import time
-import ConfigParser
+try:
+	import ConfigParser
+except ImportError as e:
+	import configparser as ConfigParser
 import logging
+
 from task import MonitorTask 
 from sender.email_sender import EmailSender
+from schduler import app
 
 
-if __name__ == '__main__':
-
+@app.task
+def main():
 	basepath = os.path.abspath(os.path.dirname(sys.path[0]))
 	confpath = os.path.join(basepath, 'conf/task.conf')
 	conf = ConfigParser.RawConfigParser()
@@ -28,14 +36,16 @@ if __name__ == '__main__':
 		)
 	logger = logging.getLogger('BaseChecker')
 
-	email_sender = EmailSender(conf, 'base checker')
-	now = time.localtime()
-	mt = MonitorTask(email_sender)
-	mt.init(conf, logger)
+	email_sender = EmailSender(conf, "base checker")
+	mt = MonitorTask("mt_task", email_sender)
 	try:
+		mt.init(conf, logger)
+		now = time.localtime()
 		mt.run(now, logger)
 	except Exception as e:
 		logger.exception(e)
 	finally:
 		mt.release(logger)
 	
+if __name__ == '__main__':
+	main()
