@@ -57,10 +57,11 @@
 	  
 8. task_monitor： 服务监控，继承MonitorTask定制实际的监控
 
-	  ./general_start.sh # for monitor run once
-	  ./crontab_start.sh # for monitor run in crontab time
-	  
-	  
+
+	   	./general_start.sh # for monitor run once
+	   	./crontab_start.sh # for monitor run in crontab time
+	 
+	 
 9. offline_model_manager: 离线模型和读取文件
 10. reporter： 报表
 
