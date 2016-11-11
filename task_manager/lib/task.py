@@ -2,8 +2,8 @@
 #-*- coding: utf-8 -*-
 # vim: set bg=dark noet sw=4 ts=4 fdm=indent : 
 
-''' Data Task'''
-__author__='chutong'
+""" Data Task"""
+__author__ = 'chutong'
 
 import os,sys
 import time
@@ -14,36 +14,9 @@ import simplejson as json
 import re
 
 from hive_conn import HiveConnector
+from argument import EmptyArgument, TopAppArgument
 
 
-class Argument(object):
-	''' Used for argument define
-	'''
-	@classmethod
-	def get(cls, result_path, parent_ids, logger):
-		return []
-
-
-class TopAppArgument(Argument):
-
-	@classmethod
-	def get(cls, result_path, parent_ids, logger):
-		try:
-			parent_id = parent_ids[0]
-			df = pd.read_csv(os.path.join(result_path, 'result_%d.csv' % parent_id))
-			print df['application_id']
-			application_ids = df['application_id'].tolist()
-			application_id_str = ''
-			for idx, application_id in enumerate(application_ids):
-				application_id_str += str(application_id)
-				if idx < len(application_ids) - 1:
-					application_id_str += ','
-			print application_id_str
-			arguments = []
-			arguments.append(application_id_str)
-			return arguments
-		except Exception as e:
-			logger.exception(e)
 class BasicTask(object):
 	def __init__(self, id, parent_ids = [], result_path='', name=''):
 		self.id = id
@@ -52,6 +25,7 @@ class BasicTask(object):
 		self.name = name
 		# define an empty df
 		self.df = pd.DataFrame() 
+		self._argument = None
 
 	def _dump_df(self, logger):
 		if self.df.empty:
@@ -175,7 +149,7 @@ class HiveQueryTask(BasicTask):
 		self.query_str = query_str
 
 	def set_arguemnt(self, argument, logger):
-		self.Argument = argument
+		self._argument = argument
 
 	def init(self, logger):
 		# init hive
@@ -185,7 +159,8 @@ class HiveQueryTask(BasicTask):
 		logger.info('task_id[%d] make query' % self.id)
 
 		# set arguments if needed
-		self.arguments = self.Argument.get(self.result_path, self.parent_ids, logger)
+		if self._argument:
+			self.arguments = self._argument.get(self.result_path, self.parent_ids, logger)
 
 		# do examine on task first, no need to query for illegal input
 		self._check(logger)
