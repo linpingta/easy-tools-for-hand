@@ -2,19 +2,20 @@
 #!/usr/bin/env python
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
 
-''' Feature Reader'''
+""" Feature Reader"""
 __author__ = 'linpingta@163.com'
 
-import os,sys
+import os
+import sys
 import logging
-import ConfigParser
-import argparse
 import re
 import time
 import datetime
 try:
+	import ConfigParser
     import cPickle as pickle
 except:
+	import configparser as ConfigParser
     import pickle
 
 # from sklearn import linear_model
@@ -22,39 +23,39 @@ import numpy as np
 
 
 class ModelReader(object):
-	''' 输入adset，按相应规则编码，读取预测结果
-	'''
+	""" 输入adset，按相应规则编码，读取预测结果
+	"""
 	def __init__(self, conf):
 		self.conf = conf
 		self.last_update = 0
 
 	def init(self, logger):
-		''' 初始化'''
+		""" 初始化"""
 		try:
 			pass
 		except Exception, e:
 			logger.exception(e)
 
 	def release(self, logger):
-		''' 释放相关资源'''
+		""" 释放相关资源"""
 		try:
 			pass
 		except Exception, e:
 			logger.exception(e)
 
 	def time_to_load(self, now, logger):
-		''' 需要更新模型的时间间隔'''
+		""" 需要更新模型的时间间隔"""
 		# default only load once
 		if not self.last_update:
 			return True
 		return False
 
 	def _load(self, now, logger):
-		''' 加载模型'''
+		""" 加载模型"""
 		return 1
 
 	def load(self, now, logger):
-		''' 加载模型'''
+		""" 加载模型"""
 		try:
 			return_flag = self._load(now, logger)
 		except Exception, e:
@@ -64,17 +65,17 @@ class ModelReader(object):
 			return return_flag
 
 	def read_by_adset(self, ts_adset, ts_campaign, now, logger):
-		''' 在Adset级别读取模型输出'''
+		""" 在Adset级别读取模型输出"""
 		pass
 
 	def read_by_campaign(self, ts_campaign, now, logger):
-		''' 在Campaign级别读取模型输出'''
+		""" 在Campaign级别读取模型输出"""
 		pass
 
 
 class ClassficationModelReader(ModelReader):
-	''' 读取regression模型输出
-	'''
+	""" 读取regression模型输出
+	"""
 	def __init__(self, level, conf):
 		super(ClassficationModelReader, self).__init__(conf)
 		self.model_dict = {}
@@ -88,7 +89,7 @@ class ClassficationModelReader(ModelReader):
 		self._load_hours = conf.getint('feature_classfication_trainer', 'load_hours')
 
 	def _load_parameter_and_checker(self, ts_campaign, now, logger):
-		''' 加载参数'''
+		""" 加载参数"""
 		query_key = ts_campaign.id if self.model_level == 'ts_campaign_id' else ts_campaign.promotion_id
 
 		logger.debug('campaign_id[%d] read model info in level %s with query_key %s' % (ts_campaign.id, self.model_level, query_key))
@@ -106,7 +107,7 @@ class ClassficationModelReader(ModelReader):
 		return (model_parameter, check_parameter)
 
 	def _encode_adset(self, ts_adset, check_parameter, ad_client, now, logger):
-		''' 对输入adset做编码'''
+		""" 对输入adset做编码"""
 		attribute_list = []
 		try:
 			creative_q_dict = check_parameter['creative_id']
@@ -169,7 +170,7 @@ class ClassficationModelReader(ModelReader):
 			return attribute_list
 
 	def _load(self, now, logger):
-		''' 加载模型文件和查询字典'''
+		""" 加载模型文件和查询字典"""
 		try:
 			model_file = '_'.join([self.model_prefix, self.model_level])
 			logger.debug('load model from file %s' % model_file)
@@ -186,14 +187,14 @@ class ClassficationModelReader(ModelReader):
 		return 1
 
 	def time_to_load(self, now, logger):
-		''' 需要更新模型的时间间隔'''
+		""" 需要更新模型的时间间隔"""
 		if not self.last_update:
 			return True
 		load_minutes = int(self._load_hours * 60)
 		return datetime.datetime.fromtimestamp(time.mktime(now)) - datetime.datetime.fromtimestamp(time.mktime(self.last_update)) >= datetime.timedelta(minutes=load_minutes)
 
 	def read_by_adset(self, ts_adset, ts_campaign, ad_client, now, logger):
-		''' 读取regression模型输出'''
+		""" 读取regression模型输出"""
 		# find model parameter
 		(model_parameter, check_parameter) = self._load_parameter_and_checker(ts_campaign, now, logger)
 
@@ -213,3 +214,4 @@ class ClassficationModelReader(ModelReader):
 		(neg_prob, pos_prob) = result_prob[0]
 		logger.debug('adset id[%d] train neg_prob %f pos_prob %f' % (ts_adset.id, neg_prob, pos_prob))
 		return pos_prob
+

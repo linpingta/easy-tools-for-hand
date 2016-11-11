@@ -2,29 +2,32 @@
 #!/usr/bin/env python
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
 
-''' Basic Offline Model Manager'''
+""" Basic Offline Model Manager"""
 __author__ = 'linpingta@163.com'
 
-import os,sys
+import os
+import sys
 import logging
-import ConfigParser
 import time
 import datetime
 try:
-    import cPickle as pickle
-except:
-    import pickle
+	import ConfigParser
+	import cPickle as pickle
+except ImportError:
+	import configparser as ConfigParser
+	import pickle
 
 
 class BasicModelManager(object):
-	''' 离线模型基类
-	'''
+	""" 离线模型基类
+	"""
 	def __init__(self, conf):
-		self.conf = conf
+		self.ad_client_host = conf.get('db', 'ad_host')
+		self.ad_client_port = conf.getint('db', 'ad_port')
 		self._call_wait_hours = 1 # default run interval
 
 	def _split_log(self, now, logger):
-		''' 拆分日志文件'''
+		""" 拆分日志文件"""
 		dt_now = datetime.datetime.fromtimestamp(time.mktime(now))
 		dt_1_hour_before = dt_now - datetime.timedelta(hours=1)
 		dt_log_s = dt_1_hour_before.strftime('%Y%m%d%H')
@@ -36,11 +39,8 @@ class BasicModelManager(object):
 			os.system(':>%s' % self.logname_prefix)
 
 	def _open_ad_client(self):
-		''' 连接Ad db，获取广告信息'''
-		ad_client_host = self.conf.get('db', 'ad_host')
-		ad_client_port = self.conf.getint('db', 'ad_port')
-
-		transport = TSocket.TSocket(ad_client_host, ad_client_port)
+		""" 连接Ad db，获取广告信息"""
+		transport = TSocket.TSocket(self.ad_client_host, self.ad_client_port)
 		transport = TTransport.TFramedTransport(transport)
 		protocol = TBinaryProtocol.TBinaryProtocol(transport)
 		ad_client = TsAdService.Client(protocol)  # Stats in the final
@@ -48,35 +48,31 @@ class BasicModelManager(object):
 			
 		return (ad_client, transport)
 
-	def _release_ad_client(self, ad_transport):
-		''' 关闭ad client'''
-		ad_transport.close()
-
 	def _create_model(self, logger):
-		''' Model创建'''
+		""" Model创建"""
 		pass
 
 	def _init_model(self, now, logger):
-		''' Model初始化处理'''
+		""" Model初始化处理"""
 		pass
 
 	def _store_model(self, now, logger):
-		''' Model保存'''
+		""" Model保存"""
 		pass
 
 	def _release_model(self, logger):
-		''' Model释放处理'''
+		""" Model释放处理"""
 		pass
 
 	def _wait(self, logger):
 		time.sleep(3600 * self._call_wait_hours)
 
 	def _run(self, data_level_object, now, logger):
-		''' 针对每个data_level_object的模型应用'''
+		""" 针对每个data_level_object的模型应用"""
 		pass
 
 	def run(self, logger, run_once=False):
-		''' 主程序'''
+		""" 主程序"""
 		try:
 			self._create_model(logger)
 
@@ -112,7 +108,7 @@ class BasicModelManager(object):
 					self._release_model(logger)
 
 				finally:
-					self._release_ad_client(ad_transport)
+					ad_transport.close()
 
 				if run_once:
 					break
@@ -124,33 +120,11 @@ class BasicModelManager(object):
 			logger.exception(e)
 
 
-class CampaignAllLevel(object):
-	''' Campaign级别分组管理
-	'''
-	def _manager_run(self, ad_client, now, logger):
-		''' Campaign运行'''
-		# read active campaigns
-		rq = RequestHeader()
-		rq.operatorUid = 1
-		rq.requester = 'basic_campaign_model'
-		auto_account_campaign_dict = ad_client.getAccountWithCampaigns(rq, int(time.mktime(now)), 1)
-
-		logger.info('campaign manager run started')
-		logger.info('auto accounts len %d' % (len(auto_account_campaign_dict.keys()) ))
-
-		for account_id, campaigns in auto_account_campaign_dict.iteritems():
-			logger.info('account_id %d campaigns len %d' % (account_id, len(campaigns)))
-			logger.info('read auto campaigns in aid %d' % account_id)
-
-			[ self._run(account_id, campaign, now, logger) for campaign in campaigns ]
-		logger.info('campaign manager run finished')
-
-
 class CampaignLevel(object):
-	''' Campaign级别分组管理
-	'''
+	""" Campaign级别分组管理
+	"""
 	def _manager_run(self, ad_client, now, logger):
-		''' Campaign运行'''
+		""" Campaign运行"""
 		# read active campaigns
 		rq = RequestHeader()
 		rq.operatorUid = 1
@@ -165,36 +139,15 @@ class CampaignLevel(object):
 			logger.info('read auto campaigns in aid %d' % account_id)
 
 			[ self._run(account_id, campaign, now, logger) for campaign in campaigns ]
+
 		logger.info('campaign manager run finished')
-
-
-class CampaignNoAccountLevel(object):
-	''' Campaign级别分组管理
-	'''
-	def _manager_run(self, ad_client, now, logger):
-		''' Campaign运行'''
-		# read active campaigns
-		rq = RequestHeader()
-		rq.operatorUid = 1
-		rq.requester = 'basic_campaign_model'
-		auto_account_campaign_dict = ad_client.getAccountWithCampaignsInSystemStatus(rq, int(time.mktime(now)), int(time.mktime(now)))
-
-		logger.info('campaign no-account manager run started')
-		logger.info('auto accounts len %d' % (len(auto_account_campaign_dict.keys()) ))
-
-		for account_id, campaigns in auto_account_campaign_dict.iteritems():
-			logger.info('account_id %d campaigns len %d' % (account_id, len(campaigns)))
-			logger.info('read auto campaigns in aid %d' % account_id)
-
-			[ self._run(campaign, now, logger) for campaign in campaigns ]
-		logger.info('campaign no-account manager run finished')
 
 
 class PromotionLevel(object):
-	''' Promotion级别分组管理
-	'''
+	""" Promotion级别分组管理
+	"""
 	def _manager_run(self, ad_client, now, logger):
-		''' Promotion运行'''
+		""" Promotion运行"""
 		rq = RequestHeader()
 		rq.operatorUid = 1
 		rq.requester = 'basic_promotion_model'
@@ -213,17 +166,17 @@ class PromotionLevel(object):
 
 		promotions = ad_client.getPromotionsByIds(rq, promotion_ids)
 
-		# no account info needed for Promotion level
-		# as no FB operation permitted
+		# no account info needed for Promotion level, as no FB operation permitted
 		[ self._run(promotion, now, logger) for promotion in promotions ]
+
 		logger.info('promotion manager run finished')
 
 
 class AccountLevel(object):
-	''' Account级别分组管理
-	'''
+	""" Account级别分组管理
+	"""
 	def _manager_run(self, ad_client, now, logger):
-		''' Account运行'''
+		""" Account运行"""
 		rq = RequestHeader()
 		rq.operatorUid = 1
 		rq.requester = 'basic_account_model'
@@ -247,7 +200,7 @@ class AccountLevel(object):
 
 if __name__ == '__main__':
 
-	basepath = os.path.abspath(os.path.dirname(sys.path[0]))
+	basepath = os.path.abspath(os.getcwd())
 	confpath = os.path.join(basepath, 'conf/strategy_model.conf')
 	conf = ConfigParser.RawConfigParser()
 	conf.read(confpath)
@@ -260,6 +213,6 @@ if __name__ == '__main__':
 
 	try:
 		BasicModelManager(conf).run(logger)
-	except Exception,e:
+	except Exception as e:
 		logging.exception(e)
 
