@@ -20,12 +20,16 @@ import logging
 
 from task.monitor import MonitorTask 
 from sender.email_sender import EmailSender
-#from scheduler import app
+from scheduler import app
 
 
-#@app.task
+# substitue this to your local path
+basepath = "/home/test/tools/task_monitor/"
+#basepath = os.path.abspath(os.path.dirname(sys.path[0]))
+
+
+@app.task
 def main():
-	basepath = os.path.abspath(os.path.dirname(sys.path[0]))
 	confpath = os.path.join(basepath, 'conf/task.conf')
 	conf = ConfigParser.RawConfigParser()
 	conf.read(confpath)
@@ -46,6 +50,7 @@ def main():
 		logger.exception(e)
 	finally:
 		mt.release(logger)
+
 	
 if __name__ == '__main__':
 	main()

@@ -92,7 +92,7 @@ class MonitorTask(Task):
 
 			logger.info('task[%s] begins' % self._name)
 
-			self._sender.set_sendto_list([self.global_sendto_users, self.special_sendto_users])
+			self._sender.set_sendto_list(self.global_sendto_users + self.special_sendto_users)
 
 			self._sender.add_title(u'Monitor Work [%s]:' % self._name, 1)
 			if self._start_dt and self._end_dt:
