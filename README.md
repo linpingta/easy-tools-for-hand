@@ -63,5 +63,9 @@
 	 
 	 
 9. offline_model_manager: 离线模型和读取文件
+
+		BasicModel: 基本离线模型
+		BasicModelManager: 对离线模型的调用
+		ModelReader：读取离线模型到在线策略系统
 10. reporter： 报表
 
