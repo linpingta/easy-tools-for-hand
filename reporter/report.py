@@ -2,7 +2,7 @@
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
 
 
-''' Element With Business Logic'''
+""" Element With Business Logic"""
 __author__ = 'chutong'
 
 
@@ -19,10 +19,10 @@ matplotlib.use('Agg')
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 
-from base import Composite
-from content import Content
-from data_query import DataQueryFactory
-from render import RenderFactory
+from lib.base import Composite
+from lib.content import Content
+from lib.data_query import DataQueryFactory
+from lib.render import RenderFactory
 
 
 class PdfReport(Composite):
@@ -55,7 +55,8 @@ class PdfReport(Composite):
 
 
 if __name__ == '__main__':
-	basepath = os.path.abspath(os.path.dirname(sys.path[0]))
+	#basepath = os.path.abspath(os.path.dirname(sys.path[0]))
+	basepath = os.path.abspath(os.getcwd())
 	confpath = os.path.join(basepath, 'conf/report.conf')
 	conf = ConfigParser.RawConfigParser()
 	conf.read(confpath)
