@@ -197,8 +197,8 @@ class HiveQueryTask(BasicTask):
 
 
 class UserDefineTask(BasicTask):
-	''' 用户自定义任务
-	'''
+	""" 用户自定义任务
+	"""
 	def __init__(self, id, parent_ids = [], result_path='', max_db_task_id=0, name=''):
 		id = id + (max_db_task_id + 1)* 10
 		super(UserDefineTask, self).__init__(id, parent_ids, result_path)

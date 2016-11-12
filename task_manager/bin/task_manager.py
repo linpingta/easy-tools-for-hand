@@ -2,7 +2,7 @@
 #-*- coding: utf-8 -*-
 # vim: set bg=dark noet sw=4 ts=4 fdm=indent : 
 
-''' Data Explorer'''
+""" Data Explorer"""
 __author__='chutong'
 
 
