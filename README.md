@@ -35,7 +35,16 @@
                                python base_maker.py -t base_template
 
 4. model_trainer ：用于machine learning项目的基本框架，我在参加[Kaggle竞赛](https://www.kaggle.com/c/shelter-animal-outcomes)中使用了[它](https://github.com/linpingta/shelter-animal-outcome)
+
 5. task_manager ： 用于离线任务的调度，基于DAG执行db任务和用户定义任务
+
+			# 添加任务
+			python bin/add_task.py # 添加单个任务
+			python bin/suite_example.py # 添加任务组
+		
+			# 执行被添加的任务
+			python bin/task_manager.py
+		
 6. exp_manager ：实验服务类，支持优雅的实验管理和日志定制
 
 	        with ExpManager("Mock") as (exp, logger):
