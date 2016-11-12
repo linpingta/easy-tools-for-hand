@@ -38,34 +38,35 @@
 5. task_manager ： 用于离线任务的调度，基于DAG执行db任务和用户定义任务
 6. exp_manager ：实验服务类，支持优雅的实验管理和日志定制
 
-	    with ExpManager("Mock") as (exp, logger):
+	        with ExpManager("Mock") as (exp, logger):
 	   
-           	from collections import OrderedDict
-           	user_info = OrderedDict(user_id=1, account_id=123, campaign_id=1234)
-           	if exp and exp.has_user(user_info):
+           	    from collections import OrderedDict
+           	    user_info = OrderedDict(user_id=1, account_id=123, campaign_id=1234)
+           	    if exp and exp.has_user(user_info):
                		# main logic
                		print 'user exists in exp'
                		logger.debug('user_id[%d] account_id[%d] campaign_id[%d] participate exp' % tuple(user_info.values()))
-		    else:
+		        else:
                		print 'user not exists in exp'
                		logger.debug('user_id[%d] account_id[%d] campaign_id[%d] dont participate exp' % tuple(user_info.values()))
 	      
 7. custom_mamager  : 参数定制类, 用于用户特殊处理
 
-          CustomSettingManager.load(xml_filename, logger)
-          user_setting_dict = CustomSettingManager.get_user_in_custom_setting(user_id,'STATUS', logger)
+          	CustomSettingManager.load(xml_filename, logger)
+           	user_setting_dict = CustomSettingManager.get_user_in_custom_setting(user_id,'STATUS', logger)
 	  
 8. task_monitor： 服务监控，继承MonitorTask定制实际的监控
 
-
 	   	./general_start.sh # for monitor run once
 	   	./crontab_start.sh # for monitor run in crontab time
-	 
 	 
 9. offline_model_manager: 离线模型和读取文件
 
 		BasicModel: 基本离线模型
 		BasicModelManager: 对离线模型的调用
 		ModelReader：读取离线模型到在线策略系统
-10. reporter： 报表
+		
+10. reporter： 可视化，将DataFrame数据通过matplotlib绘制成图表后，以pdf形式自动输出
+
+		python reporter.py # 结果在output/test.pdf中输出
 
