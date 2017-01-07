@@ -14,14 +14,15 @@ except:
 basepath = os.path.abspath(os.path.dirname(sys.path[0]))
 libpath = os.path.join(basepath, 'lib')
 sys.path.append(libpath)
+
 from base_model import TsModel
 from external_loader.base_loader import TsLoader
 from model_loader.base_loader import TsModelLoader
+from cleaner.base_cleaner import TsCleaner
 
 
 if __name__ == '__main__':
 
-	basepath = os.path.abspath(os.path.dirname(sys.path[0]))
 	confpath = os.path.join(basepath, 'conf/simple.conf')
 	conf = ConfigParser.RawConfigParser()
 	conf.read(confpath)
@@ -33,14 +34,17 @@ if __name__ == '__main__':
 		format = '[%(filename)s:%(lineno)s - %(funcName)s %(asctime)s;%(levelname)s] %(message)s',
 		datefmt = '%a, %d %b %Y %H:%M:%S'
 		)
-	logger = logging.getLogger('simple')
+	logger = logging.getLogger('Simple')
 
 	now = time.localtime()
 
 	m = TsModel(conf)
-	m.set_external_loader(TsLoader(), logger)
-	m.set_model_loader(TsModelLoader(model_conf), logger)
-	m.run(now, logger)
+	m.external_loader = TsLoader()
+	m.model_loader = TsModelLoader(model_conf)
+	try:
+		m.run(now, logger)
+	except Exception as e:
+		logger.exception(e)
 
 	# use your model to substitue above
 	pass

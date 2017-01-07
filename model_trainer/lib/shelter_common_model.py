@@ -27,20 +27,20 @@ class ShelterCommonModel(TsModel):
 	def _transfer_breed_input(self, origin_breed, logger):
 		new_breed = []
 		for breed in origin_breed:
-			#tmp_breed = breed.replace(' Mix', '')
-			#new_breed.extend(tmp_breed.split('/'))
-			part_breeds = breed.split(' Mi')
-			for part_breed in part_breeds:
-				new_breed.extend(part_breed.split('/'))
+			tmp_breed = breed.replace(' Mix', '')
+			new_breed.extend(tmp_breed.split('/'))
+			#part_breeds = breed.split(' Mi')
+			#for part_breed in part_breeds:
+			#	new_breed.extend(part_breed.split('/'))
 		return new_breed
 
 	def _transfer_color_input(self, origin_color, logger):
 		new_color = []
 		for color in origin_color:
-			new_color.extend(color.split('/'))
+			new_color.extend(color.split(' '))
 		return new_color
 
-	def _generate_combine_and_external_data(self, cleaned_train_data, cleaned_test_data, logger):
+	def _generate_combine_data(self, cleaned_train_data, cleaned_test_data, logger):
 
 		train_breed = cleaned_train_data['Breed'].unique()
 		test_breed = cleaned_test_data['Breed'].unique()
@@ -54,7 +54,7 @@ class ShelterCommonModel(TsModel):
 		new_test_color = self._transfer_color_input(test_color, logger)
 		total_color = list(set(new_train_color) | set(new_test_color))
 
-		return ((total_breed, total_color), ())
+		return (total_breed, total_color)
 
 	def _split_data(self, data, logger):
 		return {'all': data}
@@ -145,9 +145,7 @@ class ShelterCommonModel(TsModel):
 	def _transfer_intact_info(self, sex):
 		if sex is np.nan:
 			return 'Unknown'
-
-		#choices = ['Intact', 'Neutered', 'Spayed']
-		choices = ['Intact']
+		choices = ['Intact', 'Neutered', 'Spayed']
 		for choice in choices:
 			if choice in sex:
 				return choice
@@ -187,50 +185,62 @@ class ShelterCommonModel(TsModel):
 		encode_y = le_y.transform(y)
 		return (encode_y, le_y)
 
-	def _transfer_test_to_model(self, splited_key, splited_data, model_infos, combine_data, external_data, logger):
-		if 'vectorizer_x' not in model_infos:
-			logger.error('no vectorizer_x defined for model')
-			return
-		vectorizer_x = model_infos['vectorizer_x']
-		(total_breed, total_color) = combine_data
-		data = splited_data
+	def _get_param_grid(self, splited_key, logger):
+		param_grid = {
+			'max_depth':[3,10], 
+			'n_estimators':[10, 100]
+		}
+		return param_grid
 
-		data['EncodeYear'] = data['DateTime'].apply(self._transfer_year_info)
-		data['EncodeMonth'] = data['DateTime'].apply(self._transfer_month_info)
-		data['EncodeWeekday'] = data['DateTime'].apply(self._transfer_weekday_info)
-		data['EncodeHour'] = data['DateTime'].apply(self._transfer_hour_info)
-		data['UnixDateTime'] = data['DateTime'].apply(self._transfer_unix_datetime_info)
+	def _fit_transform(self, df, logger):
+		output = df.copy()
+		col_le_dict = {}
+		for colname, col in output.iteritems():
+			le = LabelEncoder()
+			output[colname] = le.fit_transform(col)
+			col_le_dict[colname] = le
+		return (output, col_le_dict)
 
-		data['EncodeAgeuponOutcome'] = data['AgeuponOutcome'].apply(self._transfer_age_info)
+	def _fit(self, df, logger):
+		col_le_dict = {}
+		for colname, col in df.iteritems():
+			le = LabelEncoder()
+			le.fit(col)
+			col_le_dict[colname] = le
+		return col_le_dict
 
-		data = data[data['SexuponOutcome'] != '']
+	def _transform(self, df, col_le_dict, logger):
+		output = df.copy()
+		for colname, col in output.iteritems():
+			le = col_le_dict[colname]
+			output[colname] = le.transform(col)
+			col_le_dict[colname] = le
+		return output
 
-		data['NameLen'] = data['Name'].apply(self._transfer_name_len)
-		for breed_type in total_breed:
-			data[breed_type] = data['Breed'].apply(self._transfer_breed_type_info, args=(breed_type,))
-		data['BreedMix'] = data['Breed'].apply(self._transfer_breed_mix_info)
-		for color_type in total_color:
-			data[color_type] = data['Color'].apply(self._transfer_color_type_info, args=(color_type,))
-		data['ColorCount'] = data['Color'].apply(self._transfer_color_count_info)
-		
-		#data['Sex'] = data['SexuponOutcome'].apply(self._transfer_sex_info)
-		#drop_list = ['Name', 'DateTime', 'AgeuponOutcome', 'SexuponOutcome', 'Breed', 'Color']
-		drop_list = ['Name', 'DateTime', 'AgeuponOutcome', 'Breed', 'Color']
-
-		transfer_data = data.drop(drop_list, 1)
-		x = transfer_data.T.to_dict().values()
-		encode_x = pd.DataFrame(vectorizer_x.transform(x))
-		encode_matrix_x = xgb.DMatrix(encode_x)
-		return encode_matrix_x
-		#return encode_x
-
-	def _transfer_data_to_model(self, splited_key, splited_data, combine_data, external_data, logger):
-		(total_breed, total_color) = combine_data
-		data = splited_data
+	def _encode_feature(self, splited_key, train_data, test_data, external_data, logger):
+		""" feature transfer and encoding """
 
 		# encode y
-		(encode_y, le_y) = self._encode_y(data['OutcomeType'].values, logger)
+		logger.debug('splited_key[%s] encode y' % splited_key)
+		(train_y, le_y) = self._encode_y(train_data['OutcomeType'].values, logger)
 
+		(total_breed, total_color) = self._generate_combine_data(train_data, test_data, logger)
+
+		test_data.rename(columns={'ID':'AnimalID'}, inplace=True)
+		feature_columns = test_data.columns
+		feature_train_data = train_data[feature_columns]
+		feature_train_data.loc[:, 'data_type'] = 'train'
+		feature_test_data = test_data[feature_columns]
+		feature_test_data.loc[:, 'data_type'] = 'test'
+		logger.debug('feature_train_data columns %s' % str(feature_train_data.columns))
+		logger.debug('feature_test_data columns %s' % str(feature_test_data.columns))
+
+		data = pd.concat([feature_train_data, feature_test_data])
+		logger.debug('feature_train_data shape %s' % str(feature_train_data.shape))
+		logger.debug('feature_test_data shape %s' % str(feature_test_data.shape))
+		logger.debug('data shape %s' % str(data.shape))
+
+		logger.debug('splited_key[%s] encode x' % splited_key)
 		data['EncodeYear'] = data['DateTime'].apply(self._transfer_year_info)
 		data['EncodeMonth'] = data['DateTime'].apply(self._transfer_month_info)
 		data['EncodeWeekday'] = data['DateTime'].apply(self._transfer_weekday_info)
@@ -242,47 +252,76 @@ class ShelterCommonModel(TsModel):
 		data = data[data['SexuponOutcome'] != '']
 
 		data['NameLen'] = data['Name'].apply(self._transfer_name_len)
-		for breed_type in total_breed:
-			data[breed_type] = data['Breed'].apply(self._transfer_breed_type_info, args=(breed_type,))
+
+		if self._encode_type == 'dv':
+			for breed_type in total_breed:
+				data[breed_type] = data['Breed'].apply(self._transfer_breed_type_info, args=(breed_type,))
+			for color_type in total_color:
+				data[color_type] = data['Color'].apply(self._transfer_color_type_info, args=(color_type,))
 		data['BreedMix'] = data['Breed'].apply(self._transfer_breed_mix_info)
-		
-		for color_type in total_color:
-			data[color_type] = data['Color'].apply(self._transfer_color_type_info, args=(color_type,))
 		data['ColorCount'] = data['Color'].apply(self._transfer_color_count_info)
-		#data['Sex'] = data['SexuponOutcome'].apply(self._transfer_sex_info)
-		#drop_list = ['AnimalID', 'Name', 'DateTime', 'OutcomeType', 'OutcomeSubtype', 'AgeuponOutcome', 'SexuponOutcome', 'Breed', 'Color']
-		drop_list = ['AnimalID', 'Name', 'DateTime', 'OutcomeType', 'OutcomeSubtype', 'AgeuponOutcome', 'Breed', 'Color']
+		data['Sex'] = data['SexuponOutcome'].apply(self._transfer_sex_info)
+		data['Intact'] = data['SexuponOutcome'].apply(self._transfer_intact_info)
 
-		transfer_data = data.drop(drop_list, 1)
-		print transfer_data.shape
-		x = transfer_data.T.to_dict().values()
-		vectorizer_x = DV(sparse=False)
-		encode_x = pd.DataFrame(vectorizer_x.fit_transform(x))
-		print encode_x.shape
-		print encode_y.shape
-		encode_x.to_csv('newdata')
-		pd.DataFrame(encode_y).to_csv('newdata_y')
+		logger.debug('transfer feature_train_data shape %s' % str(feature_train_data.shape))
+		logger.debug('transfer feature_test_data shape %s' % str(feature_test_data.shape))
 
-		#encode_x = transfer_data
-		return (encode_x, encode_y, {'vectorizer_x':vectorizer_x, 'le_y':le_y})
+		drop_list = ['AnimalID', 'Name', 'DateTime', 'AgeuponOutcome', 'SexuponOutcome']
+		data = data.drop(drop_list, 1)
+		transfer_train_data = data[data['data_type'] == 'train']
+		transfer_test_data = data[data['data_type'] == 'test']
+		type_drop_list = ['data_type']
+		transfer_train_data = transfer_train_data.drop(type_drop_list, 1)
+		transfer_test_data = transfer_test_data.drop(type_drop_list, 1)
+		data = data.drop(type_drop_list, 1)
+
+		if self._encode_type == 'dv': # one-hot encoder
+			x_all = data.T.to_dict().values()
+			vectorizer_x = DV(sparse=False)
+			vectorizer_x.fit(x_all)
+
+			x1 = transfer_train_data.T.to_dict().values()
+			train_x = pd.DataFrame(vectorizer_x.fit_transform(x1))
+			x2 = transfer_test_data.T.to_dict().values()
+			test_x = pd.DataFrame(vectorizer_x.transform(x2))
+
+			model_infos = {'vectorizer_x':vectorizer_x, 'le_y':le_y}
+
+		elif self._encode_type == 'label': # label encode
+			col_le_dict = self._fit(data, logger)
+			train_x = self._transform(transfer_train_data, col_le_dict, logger)
+			test_x = self._transform(transfer_test_data, col_le_dict, logger)
+			model_infos = {'col_le_dict':col_le_dict, 'le_y':le_y}
+		else:
+			raise ValueError("encode_type not valid, [label, dv] supported")
+
+		logger.debug('splited_key[%s] train_x shape %s' % (splited_key, str(train_x.shape)))
+		logger.debug('splited_key[%s] train_y shape %s' % (splited_key, str(train_y.shape)))
+		logger.debug('splited_key[%s] test_x shape %s' % (splited_key, str(test_x.shape)))
+
+		return (train_x, train_y, test_x, model_infos)
 
 	def _train(self, clf, train_x, train_y, splited_key, logger):
 		logger.info('splited_key[%s] do training' % splited_key)
 		# xgb training
-		param = {'max_depth':11, 'eta':0.03, 'subsample':0.75, 'colsample_bytree':0.85, 'eval_metric':'mlogloss', 'objective':'multi:softprob', 'num_class':5, 'verbose':1}
-		num_round = 4
+		param = {'nthread':4, 'max_depth':11, 'eta':0.03, 'subsample':0.75, 'colsample_bytree':0.85, 'eval_metric':'mlogloss', 'objective':'multi:softprob', 'num_class':5, 'verbose':1}
+		num_round = 400
 		dtrain = xgb.DMatrix(train_x, label=train_y)
 		clf = xgb.train(param, dtrain, num_round) 		
 		return clf
-		
+	   
 	def _do_validation(self, clf, train_x, train_y, splited_key, logger):
 		logger.info('splited_key[%s] do validation' % splited_key)
 		# xgb training
-		param = {'max_depth':11, 'eta':0.03, 'subsample':0.75, 'colsample_bytree':0.85, 'eval_metric':'mlogloss', 'objective':'multi:softprob', 'num_class':5, 'verbose':1}
-		num_round = 4
+		param = {'nthread':4, 'max_depth':11, 'eta':0.03, 'subsample':0.75, 'colsample_bytree':0.85, 'eval_metric':'mlogloss', 'objective':'multi:softprob', 'num_class':5, 'verbose':1}
+		num_round = 400
 		dtrain = xgb.DMatrix(train_x, label=train_y)
-		xgb.cv(param, dtrain, num_round, nfold=3,
-		       metrics='mlogloss', seed = 121, verbose_eval=True, callbacks=[xgb.callback.print_evaluation(show_stdv=True)])
+		res = xgb.cv(param, dtrain, num_round, nfold=3, metrics={ 'mlogloss' }, seed = 0)
+		#res = xgb.cv(param, dtrain, num_round, nfold=3, metrics='mlogloss', seed = 0, verbose_eval=True, callbacks=[xgb.callback.print_evaluation(show_stdv=True)])
+		logger.info('splited_key[%s] validation result' % (splited_key, str(res)))
 
-	def _output_result(self, predict_y, submission_filename, logger):
-            	np.savetxt(submission_filename, predict_y, delimiter=',')
+	def _predict(self, clf, test_x, splited_key, logger):
+		return clf.predict(xgb.DMatrix(test_x))
+
+	def _output(self, predict_y, submission_filename, logger):
+		np.savetxt(submission_filename, predict_y, delimiter=',')

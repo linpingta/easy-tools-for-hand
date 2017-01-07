@@ -21,6 +21,7 @@ class XgboostModel(TsJoblibModelLoader):
 		self.subsample = model_conf.getfloat('xgboost', 'subsample')
 		self.colsample_bytree = model_conf.getfloat('xgboost', 'colsample_bytree')
 		self.objective = model_conf.get('xgboost', 'objective')
+		self.nthread = model_conf.getint('xgboost', 'nthread')
 
 	def get_model(self, splited_key, logger):
-		return XGBClassifier(learning_rate=self.learning_rate, n_estimators=self.n_estimators, max_depth=self.max_depth, subsample=self.subsample, colsample_bytree=self.colsample_bytree, seed=self.seed, objective=self.objective)
+		return XGBClassifier(learning_rate=self.learning_rate, n_estimators=self.n_estimators, max_depth=self.max_depth, subsample=self.subsample, colsample_bytree=self.colsample_bytree, seed=self.seed, objective=self.objective, nthread=self.nthread, silent=False)

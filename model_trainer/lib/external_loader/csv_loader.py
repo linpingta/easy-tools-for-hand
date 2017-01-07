@@ -1,17 +1,20 @@
 #-*- coding: utf-8 -*-
 #!/usr/bin/env python
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
-''' csv loader'''
+
+""" Csv data loader"""
 __author__ = 'chutong'
 
 
 import pandas as pd
 import time
 
+from base_loader import TsLoader
 
-class TsCsvLoader(object):
-    ''' CSV Loader 
-    '''  
+
+class TsCsvLoader(TsLoader):
+    """ Csv data Loader 
+    """  
     def __init__(self):
         pass
 
@@ -28,5 +31,5 @@ class TsCsvLoader(object):
                 postfix_time = time.strftime('%Y%m%d%H%M', time.localtime())
                 postfix_filename = '.'.join([filename, str(postfix_time)])
                 data.to_csv(postfix_filename)
-	except Exception as e:
-	    logger.exception(e)
+        except Exception as e:
+            logger.exception(e)

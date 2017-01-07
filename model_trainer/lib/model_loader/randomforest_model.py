@@ -18,4 +18,4 @@ class RandomForestModel(TsJoblibModelLoader):
 		self.max_depth_num = model_conf.getint('random_forest_classifier', 'max_depth_num')
 
 	def get_model(self, splited_key, logger):
-		return RandomForestClassifier(n_estimators=self.sub_tree_num, max_depth=self.max_depth_num)
+		return RandomForestClassifier(n_estimators=self.sub_tree_num, max_depth=self.max_depth_num, verbose=True)

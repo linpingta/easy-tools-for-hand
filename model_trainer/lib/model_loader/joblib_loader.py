@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 #!/usr/bin/env python
 # vim: set bg=dark noet ts=4 sw=4 fdm=indent :
-''' joblib loader'''
+""" joblib loader"""
 __author__ = 'chutong'
 
 
@@ -13,8 +13,8 @@ from base_loader import TsModelLoader
 
 
 class TsJoblibModelLoader(TsModelLoader):
-	''' Joblib Model Loader
-	'''  
+	""" Joblib Model Loader
+	"""
 	def __init__(self, model_conf):
 		super(TsJoblibModelLoader, self).__init__(model_conf)
 
@@ -46,3 +46,9 @@ class TsJoblibModelLoader(TsModelLoader):
 				postfix_time = time.strftime('%Y%m%d%H%M', time.localtime())
 				postfix_filename = '.'.join([model_filename, str(postfix_time)])
 				joblib.dump(model_info, postfix_filename)
+
+	def get_model(self, splited_key, logger):
+		""" 
+		Child Loader Class should define how to return model here
+		"""
+		pass
