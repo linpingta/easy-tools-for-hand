@@ -79,3 +79,6 @@
 
 		python reporter.py # 结果在output/test.pdf中输出
 
+11. interest_recommend: 构建hive数据分析的基础类和方法 base_model,并将其应用于兴趣推荐上
+
+                python interest_recommend_cf.py --train --no-train-reload --interests "ABC" --max_interest_num 10
