@@ -84,3 +84,7 @@
         python interest_recommend_cf.py --train --no-train-reload --interests "ABC" --max_interest_num 10
 
 12. pprint.py: 打印dict，来自scikit-learn源码
+
+13. nlp_scel:  解析搜狗语料scel文件（源码来自网上）
+
+14. nlp_lda:  训练lda模型
