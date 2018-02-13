@@ -14,10 +14,10 @@ import ujson as json
 
 from multiprocessing import JoinableQueue, Process
 
-tgt_check_cmd = "/opt/tiger/yarn_deploy/hadoop/bin/hadoop fs -test -f YOUR_PATH/%s/_SUCCESS"
+tgt_check_cmd = "hadoop/bin/hadoop fs -test -f YOUR_PATH/%s/_SUCCESS"
 task_cmd = "python parallel_mock.py --date %s 1>%s.log 2>&1"
-old_check_cmd = "/opt/tiger/yarn_deploy/hadoop/bin/hadoop fs -test -f YOUR_PATH/%s"
-del_old_cmd = "/opt/tiger/yarn_deploy/hadoop/bin/hadoop fs -rm -r YOUR_PATH/%s"
+old_check_cmd = "hadoop/bin/hadoop fs -test -f YOUR_PATH/%s"
+del_old_cmd = "hadoop/bin/hadoop fs -rm -r YOUR_PATH/%s"
 del_check_year = range(2016, 2019)
 
 
