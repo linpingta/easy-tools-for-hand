@@ -2,9 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 parallel_udpate_data.py
-
-Created on 2018/2/13.
-Copyright (c) 2018 Bytedance. All rights reserved.
 """
 
 import os
@@ -16,8 +13,6 @@ import time
 import ujson as json
 
 from multiprocessing import JoinableQueue, Process
-
-from pyutil.sms.sms_util import send_sms
 
 tgt_check_cmd = "/opt/tiger/yarn_deploy/hadoop/bin/hadoop fs -test -f YOUR_PATH/%s/_SUCCESS"
 task_cmd = "python parallel_mock.py --date %s 1>%s.log 2>&1"
@@ -95,14 +90,18 @@ def delete_data(finished_date, delay_num, logger):
         return -1
 
 
+def send_sms(phone, msg):
+    print phone
+    print msg
+
 def notice(date, status, reason, already_finish_flag, logger):
     if already_finish_flag:
         logger.info("notice date[%s] already finish" % date)
         return
-    phone_list = ['13621070147']
+    phone_list = ['123456789']
     for phone in phone_list:
-        send_sms("web_alarm", "xFZc5IdRY5JbM", int(phone),
-                 "update_pb_job in date[%s] status[%s] with reason[%s], check /ss_ml/ad/train_data/streaming_data_send/ if need" % (
+        send_sms(int(phone),
+                 "job in date[%s] status[%s] with reason[%s]" % (
                      date, status, reason))
     logger.info("notice date[%s] notice" % date)
 
@@ -126,10 +125,11 @@ def notice_latest(latest_success_delay_date, already_finish_flag, logger):
     if already_finish_flag:
         logger.info("notice latest_success_delay_date[%s] already finish" % latest_success_delay_date)
         return
-    phone_list = ['13621070147']
+    phone_list = ['123456789']
     for phone in phone_list:
-        send_sms("web_alarm", "xFZc5IdRY5JbM", int(phone),
-                 "update_pb_job: latest_remove_text_date[%s]" % latest_success_delay_date)
+        send_sms(int(phone),
+                 "job in date[%s] status[%s] with reason[%s]" % (
+                     date, status, reason))
     logger.info("notice latest_success_delay_date[%s] notice" % latest_success_delay_date)
 
 
@@ -226,8 +226,8 @@ def update_data(args, logger):
 
 def main():
     parser = argparse.ArgumentParser(description="parse argument")
-    parser.add_argument('--start_date', type=str, default='2018-02-11')
-    parser.add_argument('--end_date', type=str, default='2018-02-12')
+    parser.add_argument('--start_date', type=str, default='')
+    parser.add_argument('--end_date', type=str, default='')
     parser.add_argument('--parallel', type=int, default=4)
     parser.add_argument('--retry_max', type=int, default=1)
     parser.add_argument('--delay_num', type=int, default=10)
