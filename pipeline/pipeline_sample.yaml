@@ -1,0 +1,23 @@
+Sample:
+  inputs: []
+  outputs: ['sample.data']
+  conf: "similar_ad_runner.conf"
+  status: 0
+
+Sample2:
+  inputs: []
+  outputs: ['sample2.data']
+  conf: ""
+  status: 1
+
+Sample3:
+  inputs: ['sample.data', 'sample2.data']
+  outputs: ['sample3.data']
+  conf: ""
+  status: 0
+
+Sample4:
+  inputs: ['sample3.data', 'sample2.data']
+  outputs: []
+  conf: ""
+  status: 0
