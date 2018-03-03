@@ -186,7 +186,7 @@ if __name__ == '__main__':
     '饮食大全【官方推荐】.scel',
     ]
     o = [
-            '商品名称大全.scel'
+            '最新车型大全【官方推荐】.scel',
             ]
     
     for f in o:
@@ -198,6 +198,7 @@ if __name__ == '__main__':
     for count,py,word in GTable:
         #GTable保存着结果，是一个列表，每个元素是一个元组(词频,拼音,中文词组)，有需要的话可以保存成自己需要个格式
         #我没排序，所以结果是按照上面输入文件的顺序
-        f.write( unicode('{%(count)s}' %{'count':count}+py+' '+ word).encode('GB18030') )#最终保存文件的编码，可以自给改
+        #f.write( unicode('{%(count)s}' %{'count':count}+py+' '+ word).encode('GB18030') )#最终保存文件的编码，可以自给改
+        f.write( unicode('{%(count)s}' %{'count':count}+py+' '+ word).encode('utf-8') )#最终保存文件的编码，可以自给改
         f.write('\n')
     f.close()    
