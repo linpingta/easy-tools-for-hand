@@ -1,5 +1,7 @@
 # easy-tools-for-hand
 
+[![Fork](https://img.shields.io/badge/-Fork-green?logo=github&style=for-the-badge)](https://github.com/linpingta/easy-tools-for-hand/fork)
+
 这里保存了一些独立的项目和脚本，像项目名称所表示的，它们是用于提高工作效率而开发的，并且可能会在适当的时候被提取划分为独立的项目。
 
 1. project_maker ：快速生成python/scala常用项目的基本目录结构
