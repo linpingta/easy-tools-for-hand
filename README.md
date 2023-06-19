@@ -2,7 +2,7 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/linpingta/easy-tools-for-hand.svg?style=social&label=Star)](https://github.com/linpingta/easy-tools-for-hand/stargazers)
 [![Fork](https://img.shields.io/badge/-Fork-green?logo=github&style=for-the-badge)](https://github.com/linpingta/easy-tools-for-hand/fork)
-
+[![Clone](https://img.shields.io/badge/Clone-HTTPS-blue.svg)](https://github.com/linpingta/easy-tools-for-hand.git)
 
 这里保存了一些独立的项目和脚本，像项目名称所表示的，它们是用于提高工作效率而开发的，并且可能会在适当的时候被提取划分为独立的项目。
 
